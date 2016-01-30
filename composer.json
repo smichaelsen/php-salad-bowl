@@ -1,0 +1,22 @@
+{
+  "name": "smichaelsen/salad-bowl",
+  "authors": [
+    {
+      "name": "Sebastian Michaelsen",
+      "email": "sebastian@app-zap.de"
+    }
+  ],
+  "require": {
+    "aura/router": "3.*",
+    "doctrine/orm": "2.4.*",
+    "symfony/yaml": "2.*",
+    "hassankhan/config": "*",
+    "twig/twig": "*",
+    "zendframework/zend-diactoros": "*"
+  },
+  "autoload": {
+    "psr-4": {
+      "Smichaelsen\\SaladBowl\\": "src/Classes/"
+    }
+  }
+}
