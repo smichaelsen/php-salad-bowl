@@ -79,14 +79,18 @@ class Bowl
                 if (!is_string($handlerClassname) || !class_exists($handlerClassname)) {
                     throw new \Exception('You have to provide proper classnames as handlers in your routes', 1454170067);
                 }
-                $handler = new $handlerClassname(new View($route->name, $this->getTwigEnvironment()));
+                $handler = new $handlerClassname();
+                if (!$handler instanceof ControllerInterface) {
+                    throw new \Exception('Handler has to implement the ControllerInterface ', 1454175394);
+                }
+                $handler->setView(new View($route->name, $this->getTwigEnvironment()));
                 if (!method_exists($handler, $request->getMethod())) {
                     throw new \Exception('Method not supported by handler ' . $handlerClassname, 1454170178);
                 }
                 $returned = call_user_func([$handler, $request->getMethod()], $request, $response);
                 if ($returned) {
                     $response->getBody()->write($returned);
-                } elseif (method_exists($handler, 'render')) {
+                } else {
                     $response->getBody()->write($handler->render());
                 }
             },

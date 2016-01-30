@@ -1,18 +1,25 @@
 <?php
 namespace Smichaelsen\SaladBowl;
 
-class AbstractController
+abstract class AbstractController implements ControllerInterface
 {
 
     /**
-     * @var \Twig_Environment
+     * @var View
      */
     protected $view;
 
     /**
+     * AbstractController constructor.
+     */
+    public function __construct()
+    {
+    }
+
+    /**
      * @param View $view
      */
-    public function __construct(View $view)
+    public function setView(View $view)
     {
         $this->view = $view;
     }
