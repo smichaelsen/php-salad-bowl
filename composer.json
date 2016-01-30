@@ -16,7 +16,7 @@
   },
   "autoload": {
     "psr-4": {
-      "Smichaelsen\\SaladBowl\\": "src/Classes/"
+      "Smichaelsen\\SaladBowl\\": "./Classes/"
     }
   }
 }
