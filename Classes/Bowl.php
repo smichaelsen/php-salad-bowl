@@ -76,7 +76,11 @@ class Bowl
     protected function getConfiguration()
     {
         if (!isset($GLOBALS['configuration']) || !$GLOBALS['configuration'] instanceof Config) {
-            $GLOBALS['configuration'] = Config::load($this->rootPath . '/config/config.json');
+            $paths = [$this->rootPath . '/config/config.json'];
+            if (is_readable($this->rootPath . '/config/config.local.json')) {
+                $paths[] = $this->rootPath . '/config/config.local.json';
+            }
+            $GLOBALS['configuration'] = Config::load($paths);
         }
         return $GLOBALS['configuration'];
     }
