@@ -16,9 +16,34 @@ class Bowl
 {
 
     /**
+     * @var Config
+     */
+    protected $configuration;
+
+    /**
+     * @var EntityManager
+     */
+    protected $entityManager;
+
+    /**
+     * @var ServerRequestInterface
+     */
+    protected $request;
+
+    /**
+     * @var Matcher
+     */
+    protected $routeMatcher;
+
+    /**
      * @var string
      */
     protected $rootPath;
+
+    /**
+     * @var \Twig_Environment
+     */
+    protected $twigEnvironment;
 
     /**
      * @param string $rootPath
@@ -33,13 +58,13 @@ class Bowl
      */
     public function getEntityManager()
     {
-        if (!isset($GLOBALS['entityManager']) || !$GLOBALS['entityManager'] instanceof EntityManager) {
-            $GLOBALS['entityManager'] = EntityManager::create(
+        if (!$this->entityManager instanceof EntityManager) {
+            $this->entityManager = EntityManager::create(
                 $this->getConfiguration()->get('database'),
                 Setup::createAnnotationMetadataConfiguration([$this->rootPath . '/src/Classes/Entities/'])
             );
         }
-        return $GLOBALS['entityManager'];
+        return $this->entityManager;
     }
 
     /**
@@ -75,22 +100,25 @@ class Bowl
      */
     protected function getConfiguration()
     {
-        if (!isset($GLOBALS['configuration']) || !$GLOBALS['configuration'] instanceof Config) {
+        if (!$this->configuration instanceof Config) {
             $paths = [$this->rootPath . '/config/config.json'];
             if (is_readable($this->rootPath . '/config/config.local.json')) {
                 $paths[] = $this->rootPath . '/config/config.local.json';
             }
-            $GLOBALS['configuration'] = Config::load($paths);
+            $this->configuration = Config::load($paths);
         }
-        return $GLOBALS['configuration'];
+        return $this->configuration;
     }
 
     /**
-     * @return \Psr\Http\Message\ServerRequestInterface
+     * @return ServerRequestInterface
      */
     protected function getRequest()
     {
-        return ServerRequestFactory::fromGlobals();
+        if (!$this->request instanceof ServerRequestInterface) {
+            $this->request = ServerRequestFactory::fromGlobals();
+        }
+        return $this->request;
     }
 
     /**
@@ -107,7 +135,7 @@ class Bowl
      */
     protected function getRouteMatcher()
     {
-        if (!isset($GLOBALS['routeMatcher']) || !$GLOBALS['routeMatcher'] instanceof Matcher) {
+        if (!$this->routeMatcher instanceof Matcher) {
             $routerContainer = new RouterContainer();
             $routesClassName = $this->getConfiguration()->get('routesClass');
             if (!class_exists($routesClassName)) {
@@ -118,9 +146,9 @@ class Bowl
                 throw new \Exception('Routes class must implement RoutesClassInterface', 1454173584);
             }
             $routesClass->configure($routerContainer->getMap());
-            $GLOBALS['routeMatcher'] = $routerContainer->getMatcher();
+            $this->routeMatcher = $routerContainer->getMatcher();
         }
-        return $GLOBALS['routeMatcher'];
+        return $this->routeMatcher;
     }
 
     /**
@@ -128,12 +156,12 @@ class Bowl
      */
     protected function getTwigEnvironment()
     {
-        if (!isset($GLOBALS['twigEnvironment']) || !$GLOBALS['twigEnvironment'] instanceof \Twig_Environment) {
-            $GLOBALS['twigEnvironment'] = new \Twig_Environment(
+        if (!$this->twigEnvironment instanceof \Twig_Environment) {
+            $this->twigEnvironment = new \Twig_Environment(
                 new \Twig_Loader_Filesystem($this->rootPath . '/' . $this->getConfiguration()->get('twig.templatesFolder'))
             );
         }
-        return $GLOBALS['twigEnvironment'];
+        return $this->twigEnvironment;
     }
 
 }
