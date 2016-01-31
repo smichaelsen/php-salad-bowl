@@ -1,6 +1,8 @@
 <?php
 namespace Smichaelsen\SaladBowl;
 
+use Aura\Auth\AuthFactory;
+use Aura\Auth\Verifier\PasswordVerifier;
 use Aura\Router\Matcher;
 use Aura\Router\RouterContainer;
 use Doctrine\ORM\EntityManager;
@@ -16,6 +18,11 @@ class Bowl
 {
 
     /**
+     * @var AuthenticationService
+     */
+    protected $authenticationService;
+
+    /**
      * @var Config
      */
     protected $configuration;
@@ -24,6 +31,11 @@ class Bowl
      * @var EntityManager
      */
     protected $entityManager;
+
+    /**
+     * @var \PDO
+     */
+    protected $pdo;
 
     /**
      * @var ServerRequestInterface
@@ -87,6 +99,9 @@ class Bowl
                 if (!method_exists($handler, $request->getMethod())) {
                     throw new \Exception('Method not supported by handler ' . $handlerClassname, 1454170178);
                 }
+                if (method_exists($handler, 'setAuthenticationService')) {
+                    $handler->setAuthenticationService($this->getAuthenticationService());
+                }
                 $returned = call_user_func([$handler, $request->getMethod()], $request, $response);
                 if ($returned) {
                     $response->getBody()->write($returned);
@@ -97,6 +112,24 @@ class Bowl
             $this->getRequest(),
             $this->getResponse()
         );
+    }
+
+    /**
+     * @return AuthenticationService
+     */
+    protected function getAuthenticationService() {
+        if (!$this->authenticationService instanceof AuthenticationService) {
+            $authConfig = $this->getConfiguration()->get('authentification');
+            $authFactory = new AuthFactory($_COOKIE);
+            $authAdapter = $authFactory->newPdoAdapter(
+                $this->getPdo(),
+                new PasswordVerifier(PASSWORD_BCRYPT),
+                $authConfig['columns'],
+                $authConfig['table']
+            );
+            $this->authenticationService = new AuthenticationService($authFactory, $authAdapter);
+        }
+        return $this->authenticationService;
     }
 
     /**
@@ -112,6 +145,23 @@ class Bowl
             $this->configuration = Config::load($paths);
         }
         return $this->configuration;
+    }
+
+    /**
+     * @return \PDO
+     */
+    protected function getPdo()
+    {
+        if (!$this->pdo instanceof \PDO) {
+            $dbConfig = $this->getConfiguration()->get('database');
+            $dsn = sprintf(
+                'mysql:host=%s;dbname=%s',
+                $dbConfig['host'],
+                $dbConfig['dbname']
+            );
+            $this->pdo = new \PDO($dsn, $dbConfig['user'], $dbConfig['password']);
+        }
+        return $this->pdo;
     }
 
     /**
