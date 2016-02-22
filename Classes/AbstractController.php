@@ -40,6 +40,15 @@ abstract class AbstractController implements ControllerInterface
     }
 
     /**
+     * @param $path
+     */
+    public function redirect($path)
+    {
+        header('Location: ' . '//' . $_SERVER['HTTP_HOST'] . '/' . trim($path, '/'));
+        die();
+    }
+
+    /**
      * @return string
      */
     public function render()
