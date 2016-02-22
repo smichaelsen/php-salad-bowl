@@ -69,7 +69,18 @@ abstract class AbstractController implements ControllerInterface
     }
 
     /**
-     * @param $path
+     * @param string $path
+     * @throws ForwardException
+     */
+    public function forward($path)
+    {
+        $forwardException = new ForwardException();
+        $forwardException->setPath($path);
+        throw $forwardException;
+    }
+
+    /**
+     * @param string $path
      */
     public function redirect($path)
     {

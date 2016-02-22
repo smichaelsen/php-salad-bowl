@@ -86,36 +86,47 @@ class Bowl
     {
         return new Server(
             function (ServerRequestInterface $request, ResponseInterface $response) {
-                $route = $this->getRouteMatcher()->match($request);
-                if ($route === false) {
-                    $response = $response->withStatus(404);
-                    $request = $this->getRequest('/404', 'get');
+                $dispatch = function (ServerRequestInterface $request, ResponseInterface $response) {
                     $route = $this->getRouteMatcher()->match($request);
-                }
-                $handlerClassname = $route->handler;
-                if (!is_string($handlerClassname) || !class_exists($handlerClassname)) {
-                    throw new \Exception('You have to provide proper classnames as handlers in your routes', 1454170067);
-                }
-                $handler = new $handlerClassname();
-                if (!$handler instanceof ControllerInterface) {
-                    throw new \Exception('Handler has to implement the ControllerInterface ', 1454175394);
-                }
-                $handler->setEntityManager($this->getEntityManager());
-                $handler->setView(new View($route->name, $this->getTwigEnvironment()));
-                if (!method_exists($handler, $request->getMethod())) {
-                    throw new \Exception('Method ' . $request->getMethod() . ' not supported by handler ' . $handlerClassname, 1454170178);
-                }
-                if (method_exists($handler, 'setAuthenticationService')) {
-                    $handler->setAuthenticationService($this->getAuthenticationService());
-                }
-                if (method_exists($handler, 'initializeAction')) {
-                    $handler->initializeAction();
-                }
-                $returned = call_user_func([$handler, $request->getMethod()], $request, $response);
-                if ($returned) {
-                    $response->getBody()->write($returned);
-                } else {
-                    $response->getBody()->write($handler->render());
+                    if ($route === false) {
+                        $forwardException = new ForwardException();
+                        $forwardException->setPath('/404');
+                        throw $forwardException;
+                    }
+                    $handlerClassname = $route->handler;
+                    if (!is_string($handlerClassname) || !class_exists($handlerClassname)) {
+                        throw new \Exception('You have to provide proper classnames as handlers in your routes', 1454170067);
+                    }
+                    $handler = new $handlerClassname();
+                    if (!$handler instanceof ControllerInterface) {
+                        throw new \Exception('Handler has to implement the ControllerInterface ', 1454175394);
+                    }
+                    $handler->setConfiguration(isset($this->getConfiguration()['app']) ? $this->getConfiguration()['app'] : []);
+                    $handler->setEntityManager($this->getEntityManager());
+                    $handler->setView(new View($route->name, $this->getTwigEnvironment()));
+                    if (!method_exists($handler, $request->getMethod())) {
+                        throw new \Exception('Method ' . $request->getMethod() . ' not supported by handler ' . $handlerClassname, 1454170178);
+                    }
+                    if (method_exists($handler, 'setAuthenticationService')) {
+                        $handler->setAuthenticationService($this->getAuthenticationService());
+                    }
+                    if (method_exists($handler, 'initializeAction')) {
+                        $handler->initializeAction();
+                    }
+                    $returned = call_user_func([$handler, $request->getMethod()], $request, $response);
+                    if ($returned) {
+                        $response->getBody()->write($returned);
+                    } else {
+                        $response->getBody()->write($handler->render());
+                    }
+                };
+                for ($i = 0; $i < 23; $i++) {
+                    try {
+                        $dispatch($request, $response);
+                        break;
+                    } catch (ForwardException $e) {
+                        $request = $this->getRequest($e->getPath(), 'get');
+                    }
                 }
             },
             $this->getRequest(),
