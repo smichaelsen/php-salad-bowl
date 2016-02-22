@@ -91,6 +91,18 @@ class AuthenticationService
     }
 
     /**
+     * @return array|bool
+     */
+    public function getUserData()
+    {
+        if (!$this->isValid())
+        {
+            return false;
+        }
+        return $this->authenticationSession->getUserData();
+    }
+
+    /**
      * @return Auth
      */
     protected function getAuthenticationSession()

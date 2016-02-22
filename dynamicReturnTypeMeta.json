@@ -1,0 +1,12 @@
+{
+  // configuration file for PHPStorm Plugin: http://plugins.jetbrains.com/plugin/7251
+  "methodCalls": [
+    // Do not add the methods getMock or getAccessibleMock to this configuration
+    // because additive type information gets lost. Use comments to define object types.
+    {
+      "class": "\\Smichaelsen\\SaladBowl\\AbstractController",
+      "method": "getLoggedInUser",
+      "position": 0
+    }
+  ]
+}

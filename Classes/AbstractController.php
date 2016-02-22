@@ -40,6 +40,22 @@ abstract class AbstractController implements ControllerInterface
     }
 
     /**
+     * @param $entityName
+     * @return object
+     */
+    protected function getLoggedInUser($entityName)
+    {
+        if (!isset($this->authenticationService)) {
+            return false;
+        }
+        $userData = $this->authenticationService->getUserData();
+        if ($userData === false) {
+            return false;
+        }
+        return $this->entityManager->getRepository($entityName)->find($userData['id']);
+    }
+
+    /**
      * @param $path
      */
     public function redirect($path)
