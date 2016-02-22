@@ -87,6 +87,11 @@ class Bowl
         return new Server(
             function (ServerRequestInterface $request, ResponseInterface $response) {
                 $route = $this->getRouteMatcher()->match($request);
+                if ($route === false) {
+                    $response = $response->withStatus(404);
+                    $request = $this->getRequest('/404', 'get');
+                    $route = $this->getRouteMatcher()->match($request);
+                }
                 $handlerClassname = $route->handler;
                 if (!is_string($handlerClassname) || !class_exists($handlerClassname)) {
                     throw new \Exception('You have to provide proper classnames as handlers in your routes', 1454170067);
@@ -102,6 +107,9 @@ class Bowl
                 }
                 if (method_exists($handler, 'setAuthenticationService')) {
                     $handler->setAuthenticationService($this->getAuthenticationService());
+                }
+                if (method_exists($handler, 'initializeAction')) {
+                    $handler->initializeAction();
                 }
                 $returned = call_user_func([$handler, $request->getMethod()], $request, $response);
                 if ($returned) {
@@ -166,10 +174,20 @@ class Bowl
     }
 
     /**
+     * @param string $uriPath
+     * @param string $method
      * @return ServerRequestInterface
      */
-    protected function getRequest()
+    protected function getRequest($uriPath = null, $method = null)
     {
+        if ($uriPath !== null) {
+            $server = $_SERVER;
+            $server['REQUEST_URI'] = $uriPath;
+            if ($method !== null) {
+                $server['REQUEST_METHOD'] = strtoupper($method);
+            }
+            return ServerRequestFactory::fromGlobals($server);
+        }
         if (!$this->request instanceof ServerRequestInterface) {
             $this->request = ServerRequestFactory::fromGlobals();
         }
