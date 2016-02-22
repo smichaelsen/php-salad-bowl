@@ -91,6 +91,16 @@ class AuthenticationService
     }
 
     /**
+     *
+     */
+    public function logout()
+    {
+        $this->resume();
+        $logoutService = $this->authenticationFactory->newLogoutService($this->authenticationAdapter);
+        $logoutService->logout($this->getAuthenticationSession());
+    }
+
+    /**
      * @return array|bool
      */
     public function getUserData()
