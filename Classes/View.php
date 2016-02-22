@@ -55,4 +55,13 @@ class View
         return $this->twig->render($this->templateName . '.twig', $this->variables);
     }
 
+    /**
+     * @param string $name
+     * @param \Closure $function
+     */
+    public function addFunction($name, \Closure $function)
+    {
+        $this->twig->addFunction(new \Twig_SimpleFunction($name, $function));
+    }
+
 }
