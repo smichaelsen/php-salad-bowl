@@ -124,7 +124,7 @@ class Bowl
             $authFactory = new AuthFactory($_COOKIE);
             $authAdapter = $authFactory->newPdoAdapter(
                 $this->getPdo(),
-                new PasswordVerifier(PASSWORD_BCRYPT),
+                new PasswordVerifier(PASSWORD_DEFAULT),
                 $authConfig['columns'],
                 $authConfig['table']
             );

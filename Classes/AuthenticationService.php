@@ -4,6 +4,7 @@ namespace Smichaelsen\SaladBowl;
 use Aura\Auth\Adapter\AdapterInterface;
 use Aura\Auth\Auth;
 use Aura\Auth\AuthFactory;
+use Psr\Http\Message\ServerRequestInterface;
 
 class AuthenticationService
 {
@@ -72,6 +73,21 @@ class AuthenticationService
     {
         $this->resume();
         return $this->authenticationSession->isValid();
+    }
+
+    /**
+     * @param ServerRequestInterface $request
+     * @return bool
+     */
+    public function login(ServerRequestInterface $request)
+    {
+        $loginService = $this->authenticationFactory->newLoginService($this->authenticationAdapter);
+        $loginService->login(
+            $this->getAuthenticationSession(),
+            $request->getParsedBody()
+        );
+        $this->resumed = true;
+        return $this->isValid();
     }
 
     /**
