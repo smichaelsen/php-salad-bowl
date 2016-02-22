@@ -7,6 +7,14 @@ interface ControllerInterface
 {
 
     /**
+     * Your controller will receive the configuration from the "app" section of your config.json
+     *
+     * @param array $configuration
+     * @return void
+     */
+    public function setConfiguration(array $configuration);
+
+    /**
      * @param EntityManager $entityManager
      * @return void
      */

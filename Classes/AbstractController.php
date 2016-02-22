@@ -7,6 +7,11 @@ abstract class AbstractController implements ControllerInterface
 {
 
     /**
+     * @var array
+     */
+    protected $configuration;
+
+    /**
      * @var EntityManager
      */
     protected $entityManager;
@@ -21,6 +26,14 @@ abstract class AbstractController implements ControllerInterface
      */
     public function __construct()
     {
+    }
+
+    /**
+     * @param array $configuration
+     */
+    public function setConfiguration(array $configuration)
+    {
+        $this->configuration = $configuration;
     }
 
     /**
