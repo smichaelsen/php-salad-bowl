@@ -1,8 +1,15 @@
 <?php
 namespace Smichaelsen\SaladBowl;
 
+use Doctrine\ORM\EntityManager;
+
 abstract class AbstractController implements ControllerInterface
 {
+
+    /**
+     * @var EntityManager
+     */
+    protected $entityManager;
 
     /**
      * @var View
@@ -14,6 +21,14 @@ abstract class AbstractController implements ControllerInterface
      */
     public function __construct()
     {
+    }
+
+    /**
+     * @param EntityManager $entityManager
+     */
+    public function setEntityManager(EntityManager $entityManager)
+    {
+        $this->entityManager = $entityManager;
     }
 
     /**

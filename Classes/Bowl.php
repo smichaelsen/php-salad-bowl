@@ -95,9 +95,10 @@ class Bowl
                 if (!$handler instanceof ControllerInterface) {
                     throw new \Exception('Handler has to implement the ControllerInterface ', 1454175394);
                 }
+                $handler->setEntityManager($this->getEntityManager());
                 $handler->setView(new View($route->name, $this->getTwigEnvironment()));
                 if (!method_exists($handler, $request->getMethod())) {
-                    throw new \Exception('Method not supported by handler ' . $handlerClassname, 1454170178);
+                    throw new \Exception('Method ' . $request->getMethod() . ' not supported by handler ' . $handlerClassname, 1454170178);
                 }
                 if (method_exists($handler, 'setAuthenticationService')) {
                     $handler->setAuthenticationService($this->getAuthenticationService());
