@@ -43,6 +43,11 @@ class Bowl
     protected $request;
 
     /**
+     * @var ResponseInterface
+     */
+    protected $response;
+
+    /**
      * @var Matcher
      */
     protected $routeMatcher;
@@ -73,7 +78,7 @@ class Bowl
         if (!$this->entityManager instanceof EntityManager) {
             $this->entityManager = EntityManager::create(
                 $this->getConfiguration()->get('database'),
-                Setup::createAnnotationMetadataConfiguration([$this->rootPath . '/src/Classes/Entities/'])
+                Setup::createAnnotationMetadataConfiguration([$this->rootPath . '/src/Classes/Entities/'], true)
             );
         }
         return $this->entityManager;
@@ -210,7 +215,10 @@ class Bowl
      */
     protected function getResponse()
     {
-        return new Response();
+        if (!$this->response instanceof ResponseInterface) {
+            $this->response = new Response();
+        }
+        return $this->response;
     }
 
     /**

@@ -82,9 +82,13 @@ class AuthenticationService
     public function login(ServerRequestInterface $request)
     {
         $loginService = $this->authenticationFactory->newLoginService($this->authenticationAdapter);
+        $params = $request->getParsedBody();
         $loginService->login(
             $this->getAuthenticationSession(),
-            $request->getParsedBody()
+            [
+                'username' => $params['username'],
+                'password' => $params['password'],
+            ]
         );
         $this->resumed = true;
         return $this->isValid();
