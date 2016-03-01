@@ -76,18 +76,20 @@ class AuthenticationService
     }
 
     /**
-     * @param ServerRequestInterface $request
+     * @param array|ServerRequestInterface $data
      * @return bool
      */
-    public function login(ServerRequestInterface $request)
+    public function login($data)
     {
+        if ($data instanceof ServerRequestInterface) {
+            $data = $data->getParsedBody();
+        }
         $loginService = $this->authenticationFactory->newLoginService($this->authenticationAdapter);
-        $params = $request->getParsedBody();
         $loginService->login(
             $this->getAuthenticationSession(),
             [
-                'username' => $params['username'],
-                'password' => $params['password'],
+                'username' => $data['username'],
+                'password' => $data['password'],
             ]
         );
         $this->resumed = true;
