@@ -10,8 +10,9 @@
     "aura/auth": "2.*",
     "aura/router": "3.*",
     "doctrine/orm": "2.4.*",
-    "symfony/yaml": "2.*",
     "hassankhan/config": "*",
+    "swiftmailer/swiftmailer": "5.4.1",
+    "symfony/yaml": "2.*",
     "twig/twig": "*",
     "zendframework/zend-diactoros": "*"
   },
