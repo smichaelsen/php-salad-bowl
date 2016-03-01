@@ -10,6 +10,7 @@ use Doctrine\ORM\Tools\Setup;
 use Noodlehaus\Config;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Smichaelsen\SaladBowl\ControllerInterfaces\MailEnabledControllerInterface;
 use Zend\Diactoros\Response;
 use Zend\Diactoros\Server;
 use Zend\Diactoros\ServerRequestFactory;
@@ -117,6 +118,9 @@ class Bowl
                     }
                     if (method_exists($handler, 'initializeAction')) {
                         $handler->initializeAction();
+                    }
+                    if ($handler instanceof MailEnabledControllerInterface) {
+                        $handler->setMailService($this->getMailService());
                     }
                     $returned = call_user_func([$handler, $request->getMethod()], $request, $response);
                     if ($returned) {
@@ -254,6 +258,15 @@ class Bowl
             );
         }
         return $this->twigEnvironment;
+    }
+
+    /**
+     * @return MailService
+     */
+    protected function getMailService()
+    {
+        $mailService = new MailService($this->getConfiguration()->get('swiftmailer'));
+        return $mailService;
     }
 
 }
