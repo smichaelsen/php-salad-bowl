@@ -116,11 +116,11 @@ class Bowl
                     if (method_exists($handler, 'setAuthenticationService')) {
                         $handler->setAuthenticationService($this->getAuthenticationService());
                     }
-                    if (method_exists($handler, 'initializeAction')) {
-                        $handler->initializeAction();
-                    }
                     if ($handler instanceof MailEnabledControllerInterface) {
                         $handler->setMailService($this->getMailService());
+                    }
+                    if (method_exists($handler, 'initializeAction')) {
+                        $handler->initializeAction();
                     }
                     $returned = call_user_func([$handler, $request->getMethod()], $request, $response);
                     if ($returned) {
