@@ -146,7 +146,8 @@ class Bowl
     /**
      * @return AuthenticationService
      */
-    protected function getAuthenticationService() {
+    protected function getAuthenticationService()
+    {
         if (!$this->authenticationService instanceof AuthenticationService) {
             $authConfig = $this->getConfiguration()->get('authentification');
             $authFactory = new AuthFactory($_COOKIE);
