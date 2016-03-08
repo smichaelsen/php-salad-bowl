@@ -34,6 +34,11 @@ class Bowl
     protected $entityManager;
 
     /**
+     * @var MailService
+     */
+    protected $mailService;
+
+    /**
      * @var \PDO
      */
     protected $pdo;
@@ -266,8 +271,10 @@ class Bowl
      */
     protected function getMailService()
     {
-        $mailService = new MailService($this->getConfiguration()->get('swiftmailer'));
-        return $mailService;
+        if (!$this->mailService instanceof MailService) {
+            $this->mailService = new MailService($this->getConfiguration()->get('swiftmailer'));
+        }
+        return $this->mailService;
     }
 
 }
