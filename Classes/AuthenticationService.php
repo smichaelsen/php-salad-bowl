@@ -111,8 +111,7 @@ class AuthenticationService
      */
     public function getUserData()
     {
-        if (!$this->isValid())
-        {
+        if (!$this->isValid()) {
             return false;
         }
         return $this->authenticationSession->getUserData();
