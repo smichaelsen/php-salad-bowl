@@ -10,6 +10,7 @@ use Doctrine\ORM\Tools\Setup;
 use Noodlehaus\Config;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Smichaelsen\SaladBowl\ControllerInterfaces\AuthenticationEnabledControllerInterface;
 use Smichaelsen\SaladBowl\ControllerInterfaces\MailEnabledControllerInterface;
 use Zend\Diactoros\Response;
 use Zend\Diactoros\Server;
@@ -118,7 +119,7 @@ class Bowl
                     if (!method_exists($handler, $request->getMethod())) {
                         throw new \Exception('Method ' . $request->getMethod() . ' not supported by handler ' . $handlerClassname, 1454170178);
                     }
-                    if (method_exists($handler, 'setAuthenticationService')) {
+                    if ($handler instanceof AuthenticationEnabledControllerInterface) {
                         $handler->setAuthenticationService($this->getAuthenticationService());
                     }
                     if ($handler instanceof MailEnabledControllerInterface) {
@@ -150,11 +151,15 @@ class Bowl
 
     /**
      * @return AuthenticationService
+     * @throws \Exception
      */
     protected function getAuthenticationService()
     {
         if (!$this->authenticationService instanceof AuthenticationService) {
-            $authConfig = $this->getConfiguration()->get('authentification');
+            $authConfig = $this->getConfiguration()->get('authentication');
+            if (!is_array($authConfig)) {
+                throw new \Exception('Authentication configuration missing', 1465583676);
+            }
             $authFactory = new AuthFactory($_COOKIE);
             $authAdapter = $authFactory->newPdoAdapter(
                 $this->getPdo(),
