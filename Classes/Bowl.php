@@ -163,7 +163,7 @@ class Bowl
             $authFactory = new AuthFactory($_COOKIE);
             $authAdapter = $authFactory->newPdoAdapter(
                 $this->getPdo(),
-                new PasswordVerifier(PASSWORD_DEFAULT),
+                new PasswordVerifier(AuthenticationService::PASSWORD_HASHING_ALGO),
                 $authConfig['columns'],
                 $authConfig['table']
             );

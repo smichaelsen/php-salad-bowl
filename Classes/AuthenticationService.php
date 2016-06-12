@@ -9,6 +9,8 @@ use Psr\Http\Message\ServerRequestInterface;
 class AuthenticationService
 {
 
+    const PASSWORD_HASHING_ALGO = PASSWORD_DEFAULT;
+
     /**
      * @var AdapterInterface
      */
@@ -140,6 +142,15 @@ class AuthenticationService
             $this->getAuthenticationSession()
         );
         $this->resumed = true;
+    }
+
+    /**
+     * @param string $password
+     * @return string
+     */
+    public function hashPassword($password)
+    {
+        return password_hash($password, self::PASSWORD_HASHING_ALGO);
     }
 
 }
