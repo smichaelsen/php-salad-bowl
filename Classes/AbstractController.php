@@ -7,6 +7,11 @@ abstract class AbstractController implements ControllerInterface
 {
 
     /**
+     * @var AuthenticationService
+     */
+    protected $authenticationService;
+
+    /**
      * @var array
      */
     protected $configuration;
@@ -26,6 +31,17 @@ abstract class AbstractController implements ControllerInterface
      */
     public function __construct()
     {
+    }
+
+    /**
+     * Will only be called if the controller implements the AuthenticationEnabledControllerInterface
+     *
+     * @param AuthenticationService $authenticationService
+     * @return void
+     */
+    public function setAuthenticationService(AuthenticationService $authenticationService)
+    {
+        $this->authenticationService = $authenticationService;
     }
 
     /**
@@ -53,17 +69,17 @@ abstract class AbstractController implements ControllerInterface
     }
 
     /**
-     * @param $entityName
+     * @param string $entityName
      * @return object
      */
     protected function getLoggedInUser($entityName)
     {
         if (!isset($this->authenticationService)) {
-            return false;
+            return null;
         }
         $userData = $this->authenticationService->getUserData();
         if ($userData === false) {
-            return false;
+            return null;
         }
         return $this->entityManager->getRepository($entityName)->find($userData['id']);
     }
