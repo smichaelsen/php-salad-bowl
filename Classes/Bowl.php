@@ -100,6 +100,9 @@ class Bowl
             function (ServerRequestInterface $request, ResponseInterface $response) {
                 $dispatch = function (ServerRequestInterface $request, ResponseInterface $response) {
                     $route = $this->getRouteMatcher()->match($request);
+                    foreach ($route->attributes as $key => $value) {
+                        $request = $request->withAttribute($key, $value);
+                    }
                     if ($route === false) {
                         $forwardException = new ForwardException();
                         $forwardException->setPath('/404');
