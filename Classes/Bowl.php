@@ -118,7 +118,11 @@ class Bowl
                     }
                     $handler->setConfiguration(isset($this->getConfiguration()['app']) ? $this->getConfiguration()['app'] : []);
                     $handler->setEntityManager($this->getEntityManager());
-                    $handler->setView(new View($route->name, $this->getTwigEnvironment()));
+                    $view = new View(
+                        explode('.', $route->name, 2)[0],
+                        $this->getTwigEnvironment()
+                    );
+                    $handler->setView($view);
                     if (!method_exists($handler, $request->getMethod())) {
                         throw new \Exception('Method ' . $request->getMethod() . ' not supported by handler ' . $handlerClassname, 1454170178);
                     }
