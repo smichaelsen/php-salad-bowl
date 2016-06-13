@@ -57,6 +57,15 @@ class View
 
     /**
      * @param string $name
+     * @param \Closure $filter
+     */
+    public function addFilter($name, \Closure $filter)
+    {
+        $this->twig->addFilter(new \Twig_SimpleFilter($name, $filter));
+    }
+
+    /**
+     * @param string $name
      * @param \Closure $function
      */
     public function addFunction($name, \Closure $function)
