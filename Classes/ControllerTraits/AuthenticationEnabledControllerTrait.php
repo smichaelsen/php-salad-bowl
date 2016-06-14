@@ -40,5 +40,5 @@ trait AuthenticationEnabledControllerTrait
         }
         return $this->entityManager->getRepository($entityName)->find($userData['id']);
     }
-    
+
 }

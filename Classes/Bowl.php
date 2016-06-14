@@ -11,7 +11,6 @@ use Noodlehaus\Config;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Smichaelsen\SaladBowl\ControllerInterfaces\ControllerInterface;
-use Smichaelsen\SaladBowl\ControllerInterfaces\MailEnabledControllerInterface;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\Security\Csrf\CsrfTokenManager;
 use Symfony\Component\Security\Csrf\TokenGenerator\UriSafeTokenGenerator;
