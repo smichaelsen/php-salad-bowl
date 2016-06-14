@@ -11,7 +11,9 @@ use Noodlehaus\Config;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Smichaelsen\SaladBowl\ControllerInterfaces\AuthenticationEnabledControllerInterface;
+use Smichaelsen\SaladBowl\ControllerInterfaces\ControllerInterface;
 use Smichaelsen\SaladBowl\ControllerInterfaces\MailEnabledControllerInterface;
+use Smichaelsen\SaladBowl\ControllerInterfaces\UrlGeneratorEnabledControllerInterface;
 use Zend\Diactoros\Response;
 use Zend\Diactoros\Server;
 use Zend\Diactoros\ServerRequestFactory;
@@ -50,11 +52,6 @@ class Bowl
     protected $request;
 
     /**
-     * @var ResponseInterface
-     */
-    protected $response;
-
-    /**
      * @var Matcher
      */
     protected $routeMatcher;
@@ -63,6 +60,11 @@ class Bowl
      * @var string
      */
     protected $rootPath;
+
+    /**
+     * @var ServiceContainer
+     */
+    protected $serviceContainer;
 
     /**
      * @var \Twig_Environment
@@ -75,6 +77,7 @@ class Bowl
     public function __construct($rootPath)
     {
         $this->rootPath = $rootPath;
+        $this->serviceContainer = new ServiceContainer($this->getConfiguration());
     }
 
     /**
@@ -130,7 +133,10 @@ class Bowl
                         $handler->setAuthenticationService($this->getAuthenticationService());
                     }
                     if ($handler instanceof MailEnabledControllerInterface) {
-                        $handler->setMailService($this->getMailService());
+                        $handler->setMailService($this->serviceContainer->getSingleton(MailService::class, $this->getConfiguration()->get('swiftmailer')));
+                    }
+                    if ($handler instanceof UrlGeneratorEnabledControllerInterface) {
+                        $handler->setUrlGenerator($this->getUrlGenerator());
                     }
                     if (method_exists($handler, 'initializeAction')) {
                         $handler->initializeAction();
@@ -152,7 +158,7 @@ class Bowl
                 }
             },
             $this->getRequest(),
-            $this->getResponse()
+            $this->serviceContainer->getSingleton(Response::class)
         );
     }
 
@@ -233,24 +239,12 @@ class Bowl
     }
 
     /**
-     * @return \Psr\Http\Message\ResponseInterface
-     */
-    protected function getResponse()
-    {
-        if (!$this->response instanceof ResponseInterface) {
-            $this->response = new Response();
-        }
-        return $this->response;
-    }
-
-    /**
      * @return Matcher
      * @throws \Exception
      */
     protected function getRouteMatcher()
     {
         if (!$this->routeMatcher instanceof Matcher) {
-            $routerContainer = new RouterContainer();
             $routesClassName = $this->getConfiguration()->get('routesClass');
             if (!class_exists($routesClassName)) {
                 throw new \Exception('Routes class could not be loaded', 1454173497);
@@ -259,10 +253,18 @@ class Bowl
             if (!$routesClass instanceof RoutesClassInterface) {
                 throw new \Exception('Routes class must implement RoutesClassInterface', 1454173584);
             }
-            $routesClass->configure($routerContainer->getMap());
-            $this->routeMatcher = $routerContainer->getMatcher();
+            $routesClass->configure($this->serviceContainer->getSingleton(RouterContainer::class)->getMap());
+            $this->routeMatcher = $this->serviceContainer->getSingleton(RouterContainer::class)->getMatcher();
         }
         return $this->routeMatcher;
+    }
+
+    /**
+     * @return \Aura\Router\Generator
+     */
+    protected function getUrlGenerator()
+    {
+        return $this->serviceContainer->getSingleton(RouterContainer::class)->getGenerator();
     }
 
     /**
@@ -276,17 +278,6 @@ class Bowl
             );
         }
         return $this->twigEnvironment;
-    }
-
-    /**
-     * @return MailService
-     */
-    protected function getMailService()
-    {
-        if (!$this->mailService instanceof MailService) {
-            $this->mailService = new MailService($this->getConfiguration()->get('swiftmailer'));
-        }
-        return $this->mailService;
     }
 
 }

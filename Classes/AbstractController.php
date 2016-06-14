@@ -1,9 +1,12 @@
 <?php
 namespace Smichaelsen\SaladBowl;
 
+use Aura\Router\Generator;
 use Doctrine\ORM\EntityManager;
+use Smichaelsen\SaladBowl\ControllerInterfaces\ControllerInterface;
+use Smichaelsen\SaladBowl\ControllerInterfaces\UrlGeneratorEnabledControllerInterface;
 
-abstract class AbstractController implements ControllerInterface
+abstract class AbstractController implements ControllerInterface, UrlGeneratorEnabledControllerInterface
 {
 
     /**
@@ -20,6 +23,11 @@ abstract class AbstractController implements ControllerInterface
      * @var EntityManager
      */
     protected $entityManager;
+
+    /**
+     * @var Generator
+     */
+    protected $urlGenerator;
 
     /**
      * @var View
@@ -61,6 +69,14 @@ abstract class AbstractController implements ControllerInterface
     }
 
     /**
+     * @param Generator $generator
+     */
+    public function setUrlGenerator(Generator $generator)
+    {
+        $this->urlGenerator = $generator;
+    }
+
+    /**
      * @param View $view
      */
     public function setView(View $view)
@@ -96,6 +112,14 @@ abstract class AbstractController implements ControllerInterface
     }
 
     /**
+     *
+     */
+    public function initializeAction()
+    {
+        $this->registerCoreTwigFunctions();
+    }
+
+    /**
      * @param string $path
      */
     public function redirect($path)
@@ -110,6 +134,14 @@ abstract class AbstractController implements ControllerInterface
     public function render()
     {
         return $this->view->render();
+    }
+
+    protected function registerCoreTwigFunctions()
+    {
+        $urlGenerator = $this->urlGenerator;
+        $this->view->addFunction('path', function ($routeName, $arguments = []) use ($urlGenerator) {
+            return $urlGenerator->generate($routeName, $arguments);
+        });
     }
 
 }

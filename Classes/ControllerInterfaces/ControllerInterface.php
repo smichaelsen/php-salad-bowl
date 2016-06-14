@@ -1,7 +1,8 @@
 <?php
-namespace Smichaelsen\SaladBowl;
+namespace Smichaelsen\SaladBowl\ControllerInterfaces;
 
 use Doctrine\ORM\EntityManager;
+use Smichaelsen\SaladBowl\View;
 
 interface ControllerInterface
 {

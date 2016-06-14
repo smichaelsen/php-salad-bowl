@@ -7,6 +7,11 @@
       "class": "\\Smichaelsen\\SaladBowl\\AbstractController",
       "method": "getLoggedInUser",
       "position": 0
+    },
+    {
+      "class": "\\Smichaelsen\\SaladBowl\\ServiceContainer",
+      "method": "getSingleton",
+      "position": 0
     }
   ]
 }
