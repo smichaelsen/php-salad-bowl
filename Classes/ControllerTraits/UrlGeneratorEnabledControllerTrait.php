@@ -2,11 +2,17 @@
 namespace Smichaelsen\SaladBowl\ControllerTraits;
 
 use Aura\Router\Generator;
+use Doctrine\ORM\EntityManager;
 use Smichaelsen\SaladBowl\ForwardException;
 use Smichaelsen\SaladBowl\View;
 
 trait UrlGeneratorEnabledControllerTrait
 {
+
+    /**
+     * @var EntityManager
+     */
+    protected $entityManager;
 
     /**
      * @var Generator
@@ -50,6 +56,7 @@ trait UrlGeneratorEnabledControllerTrait
     public function redirectToRoute($routeName, array $arguments = [])
     {
         header('Location: ' . '//' . $_SERVER['HTTP_HOST'] . '/' . trim($this->urlGenerator->generate($routeName, $arguments), '/'));
+        $this->entityManager->flush();
         die();
     }
 

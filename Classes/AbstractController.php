@@ -78,6 +78,7 @@ abstract class AbstractController implements ControllerInterface
     public function redirect($path)
     {
         header('Location: ' . '//' . $_SERVER['HTTP_HOST'] . '/' . trim($path, '/'));
+        $this->entityManager->flush();
         die();
     }
 
