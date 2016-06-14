@@ -2,6 +2,7 @@
 namespace Smichaelsen\SaladBowl\ControllerTraits;
 
 use Aura\Router\Generator;
+use Smichaelsen\SaladBowl\ForwardException;
 use Smichaelsen\SaladBowl\View;
 
 trait UrlGeneratorEnabledControllerTrait
@@ -28,6 +29,28 @@ trait UrlGeneratorEnabledControllerTrait
         $view->addFunction('path', function ($routeName, $arguments = []) use ($urlGenerator) {
             return $urlGenerator->generate($routeName, $arguments);
         });
+    }
+
+    /**
+     * @param string $routeName
+     * @param array $arguments
+     * @throws ForwardException
+     */
+    public function forwardToRoute($routeName, array $arguments = [])
+    {
+        $forwardException = new ForwardException();
+        $forwardException->setPath($this->urlGenerator->generate($routeName, $arguments));
+        throw $forwardException;
+    }
+
+    /**
+     * @param $routeName
+     * @param array $arguments
+     */
+    public function redirectToRoute($routeName, array $arguments = [])
+    {
+        header('Location: ' . '//' . $_SERVER['HTTP_HOST'] . '/' . trim($this->urlGenerator->generate($routeName, $arguments), '/'));
+        die();
     }
 
 }

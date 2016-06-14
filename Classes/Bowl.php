@@ -161,6 +161,7 @@ class Bowl
                         $request = $this->getRequest($e->getPath(), 'get');
                     }
                 }
+                $this->getEntityManager()->flush();
             },
             $this->getRequest(),
             $this->serviceContainer->getSingleton(Response::class)
