@@ -1,6 +1,7 @@
 <?php
 namespace Smichaelsen\SaladBowl\ControllerTraits;
 
+use Smichaelsen\SaladBowl\View;
 use Symfony\Component\Security\Csrf\CsrfToken;
 use Symfony\Component\Security\Csrf\CsrfTokenManager;
 
@@ -28,6 +29,19 @@ trait CsrfProtectedControllerTrait
             return;
         }
         throw new \Exception('Invalid csrf token. Please try again', 1465918041);
+    }
+
+    /**
+     * @param View $view
+     */
+    protected function registerTwigFunctions_csrf(View $view) {
+        if (isset($this->csrfTokenManager)) {
+            /** @var CsrfTokenManager $csrfTokenManager */
+            $csrfTokenManager = $this->csrfTokenManager;
+            $view->addFunction('csrfToken', function ($tokenId) use ($csrfTokenManager) {
+                return $csrfTokenManager->getToken($tokenId);
+            });
+        }
     }
 
 }

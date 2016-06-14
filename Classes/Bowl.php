@@ -10,11 +10,8 @@ use Doctrine\ORM\Tools\Setup;
 use Noodlehaus\Config;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Smichaelsen\SaladBowl\ControllerInterfaces\AuthenticationEnabledControllerInterface;
 use Smichaelsen\SaladBowl\ControllerInterfaces\ControllerInterface;
 use Smichaelsen\SaladBowl\ControllerInterfaces\MailEnabledControllerInterface;
-use Smichaelsen\SaladBowl\ControllerInterfaces\UrlGeneratorEnabledControllerInterface;
-use Smichaelsen\SaladBowl\ControllerTraits\CsrfProtectedControllerTrait;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\Security\Csrf\CsrfTokenManager;
 use Symfony\Component\Security\Csrf\TokenGenerator\UriSafeTokenGenerator;
@@ -134,16 +131,16 @@ class Bowl
                     if (!method_exists($handler, $request->getMethod())) {
                         throw new \Exception('Method ' . $request->getMethod() . ' not supported by handler ' . $handlerClassname, 1454170178);
                     }
-                    if ($handler instanceof AuthenticationEnabledControllerInterface) {
+                    if (method_exists($handler, 'setAuthenticationService')) {
                         $handler->setAuthenticationService($this->getAuthenticationService());
                     }
                     if (method_exists($handler, 'setCsrfTokenManager')) {
                         $handler->setCsrfTokenManager($this->getCsrfTokenManager());
                     }
-                    if ($handler instanceof MailEnabledControllerInterface) {
+                    if (method_exists($handler, 'setMailService')) {
                         $handler->setMailService($this->serviceContainer->getSingleton(MailService::class, $this->getConfiguration()->get('swiftmailer')));
                     }
-                    if ($handler instanceof UrlGeneratorEnabledControllerInterface) {
+                    if (method_exists($handler, 'setUrlGenerator')) {
                         $handler->setUrlGenerator($this->getUrlGenerator());
                     }
                     if (method_exists($handler, 'initializeAction')) {

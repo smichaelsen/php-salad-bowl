@@ -1,19 +1,11 @@
 <?php
 namespace Smichaelsen\SaladBowl;
 
-use Aura\Router\Generator;
 use Doctrine\ORM\EntityManager;
 use Smichaelsen\SaladBowl\ControllerInterfaces\ControllerInterface;
-use Smichaelsen\SaladBowl\ControllerInterfaces\UrlGeneratorEnabledControllerInterface;
-use Symfony\Component\Security\Csrf\CsrfTokenManager;
 
-abstract class AbstractController implements ControllerInterface, UrlGeneratorEnabledControllerInterface
+abstract class AbstractController implements ControllerInterface
 {
-
-    /**
-     * @var AuthenticationService
-     */
-    protected $authenticationService;
 
     /**
      * @var array
@@ -26,11 +18,6 @@ abstract class AbstractController implements ControllerInterface, UrlGeneratorEn
     protected $entityManager;
 
     /**
-     * @var Generator
-     */
-    protected $urlGenerator;
-
-    /**
      * @var View
      */
     protected $view;
@@ -40,17 +27,6 @@ abstract class AbstractController implements ControllerInterface, UrlGeneratorEn
      */
     public function __construct()
     {
-    }
-
-    /**
-     * Will only be called if the controller implements the AuthenticationEnabledControllerInterface
-     *
-     * @param AuthenticationService $authenticationService
-     * @return void
-     */
-    public function setAuthenticationService(AuthenticationService $authenticationService)
-    {
-        $this->authenticationService = $authenticationService;
     }
 
     /**
@@ -70,35 +46,11 @@ abstract class AbstractController implements ControllerInterface, UrlGeneratorEn
     }
 
     /**
-     * @param Generator $generator
-     */
-    public function setUrlGenerator(Generator $generator)
-    {
-        $this->urlGenerator = $generator;
-    }
-
-    /**
      * @param View $view
      */
     public function setView(View $view)
     {
         $this->view = $view;
-    }
-
-    /**
-     * @param string $entityName
-     * @return object
-     */
-    protected function getLoggedInUser($entityName)
-    {
-        if (!isset($this->authenticationService)) {
-            return null;
-        }
-        $userData = $this->authenticationService->getUserData();
-        if ($userData === false) {
-            return null;
-        }
-        return $this->entityManager->getRepository($entityName)->find($userData['id']);
     }
 
     /**
@@ -142,16 +94,11 @@ abstract class AbstractController implements ControllerInterface, UrlGeneratorEn
      */
     protected function registerCoreTwigFunctions()
     {
-        $urlGenerator = $this->urlGenerator;
-        $this->view->addFunction('path', function ($routeName, $arguments = []) use ($urlGenerator) {
-            return $urlGenerator->generate($routeName, $arguments);
-        });
-        if (isset($this->csrfTokenManager)) {
-            /** @var CsrfTokenManager $csrfTokenManager */
-            $csrfTokenManager = $this->csrfTokenManager;
-            $this->view->addFunction('csrfToken', function ($tokenId) use ($csrfTokenManager) {
-                return $csrfTokenManager->getToken($tokenId);
-            });
+        $methods = get_class_methods($this);
+        foreach ($methods as $method) {
+            if (strpos($method, 'registerTwigFunctions_') === 0) {
+                $this->{$method}($this->view);
+            }
         }
     }
 
