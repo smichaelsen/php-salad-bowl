@@ -5,6 +5,7 @@ use Aura\Router\Generator;
 use Doctrine\ORM\EntityManager;
 use Smichaelsen\SaladBowl\ControllerInterfaces\ControllerInterface;
 use Smichaelsen\SaladBowl\ControllerInterfaces\UrlGeneratorEnabledControllerInterface;
+use Symfony\Component\Security\Csrf\CsrfTokenManager;
 
 abstract class AbstractController implements ControllerInterface, UrlGeneratorEnabledControllerInterface
 {
@@ -136,12 +137,22 @@ abstract class AbstractController implements ControllerInterface, UrlGeneratorEn
         return $this->view->render();
     }
 
+    /**
+     * 
+     */
     protected function registerCoreTwigFunctions()
     {
         $urlGenerator = $this->urlGenerator;
         $this->view->addFunction('path', function ($routeName, $arguments = []) use ($urlGenerator) {
             return $urlGenerator->generate($routeName, $arguments);
         });
+        if (isset($this->csrfTokenManager)) {
+            /** @var CsrfTokenManager $csrfTokenManager */
+            $csrfTokenManager = $this->csrfTokenManager;
+            $this->view->addFunction('csrfToken', function ($tokenId) use ($csrfTokenManager) {
+                return $csrfTokenManager->getToken($tokenId);
+            });
+        }
     }
 
 }
