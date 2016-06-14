@@ -12,7 +12,8 @@
     "doctrine/orm": "2.4.*",
     "hassankhan/config": "*",
     "swiftmailer/swiftmailer": "5.4.1",
-    "symfony/yaml": "2.*",
+    "symfony/http-foundation": "3.*",
+    "symfony/security-csrf": "3.*",
     "twig/twig": "*",
     "zendframework/zend-diactoros": "*"
   },

@@ -14,6 +14,11 @@ use Smichaelsen\SaladBowl\ControllerInterfaces\AuthenticationEnabledControllerIn
 use Smichaelsen\SaladBowl\ControllerInterfaces\ControllerInterface;
 use Smichaelsen\SaladBowl\ControllerInterfaces\MailEnabledControllerInterface;
 use Smichaelsen\SaladBowl\ControllerInterfaces\UrlGeneratorEnabledControllerInterface;
+use Smichaelsen\SaladBowl\ControllerTraits\CsrfProtectedControllerTrait;
+use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\Security\Csrf\CsrfTokenManager;
+use Symfony\Component\Security\Csrf\TokenGenerator\UriSafeTokenGenerator;
+use Symfony\Component\Security\Csrf\TokenStorage\SessionTokenStorage;
 use Zend\Diactoros\Response;
 use Zend\Diactoros\Server;
 use Zend\Diactoros\ServerRequestFactory;
@@ -131,6 +136,9 @@ class Bowl
                     }
                     if ($handler instanceof AuthenticationEnabledControllerInterface) {
                         $handler->setAuthenticationService($this->getAuthenticationService());
+                    }
+                    if (method_exists($handler, 'setCsrfTokenManager')) {
+                        $handler->setCsrfTokenManager($this->getCsrfTokenManager());
                     }
                     if ($handler instanceof MailEnabledControllerInterface) {
                         $handler->setMailService($this->serviceContainer->getSingleton(MailService::class, $this->getConfiguration()->get('swiftmailer')));
@@ -278,6 +286,23 @@ class Bowl
             );
         }
         return $this->twigEnvironment;
+    }
+
+    /**
+     * @return CsrfTokenManager
+     */
+    protected function getCsrfTokenManager()
+    {
+        $session = $this->serviceContainer->getSingleton(Session::class);
+        $session->start();
+        return $this->serviceContainer->getSingleton(
+            CsrfTokenManager::class,
+            $this->serviceContainer->getSingleton(UriSafeTokenGenerator::class),
+            $this->serviceContainer->getSingleton(
+                SessionTokenStorage::class,
+                $session
+            )
+        );
     }
 
 }
