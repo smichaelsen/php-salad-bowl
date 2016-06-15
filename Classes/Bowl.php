@@ -10,7 +10,6 @@ use Doctrine\ORM\Tools\Setup;
 use Noodlehaus\Config;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Smichaelsen\SaladBowl\ControllerInterfaces\ControllerInterface;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\Security\Csrf\CsrfTokenManager;
 use Symfony\Component\Security\Csrf\TokenGenerator\UriSafeTokenGenerator;
@@ -278,8 +277,13 @@ class Bowl
     protected function getTwigEnvironment()
     {
         if (!$this->twigEnvironment instanceof \Twig_Environment) {
+            $twigConfig = $this->getConfiguration()->get('twig');
+            if (isset($twigConfig['cache']) && $twigConfig['cache'] === '') {
+                $twigConfig['cache'] = false;
+            }
             $this->twigEnvironment = new \Twig_Environment(
-                new \Twig_Loader_Filesystem($this->rootPath . '/' . $this->getConfiguration()->get('twig.templatesFolder'))
+                new \Twig_Loader_Filesystem($this->rootPath . '/' . $twigConfig['templatesFolder']),
+                ['cache' => isset($twigConfig['cache']) ? $twigConfig['cache'] : sys_get_temp_dir()]
             );
         }
         return $this->twigEnvironment;

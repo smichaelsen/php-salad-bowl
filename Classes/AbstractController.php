@@ -2,7 +2,6 @@
 namespace Smichaelsen\SaladBowl;
 
 use Doctrine\ORM\EntityManager;
-use Smichaelsen\SaladBowl\ControllerInterfaces\ControllerInterface;
 
 abstract class AbstractController implements ControllerInterface
 {
@@ -91,7 +90,7 @@ abstract class AbstractController implements ControllerInterface
     }
 
     /**
-     * 
+     *
      */
     protected function registerCoreTwigFunctions()
     {
