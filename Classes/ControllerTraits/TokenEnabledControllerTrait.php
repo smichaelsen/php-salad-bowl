@@ -33,7 +33,7 @@ trait TokenEnabledControllerTrait
      */
     protected function invalidateToken(Token $token)
     {
-        $this->entityManager->detach($token);
+        $this->entityManager->remove($token);
     }
 
 }
