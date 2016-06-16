@@ -88,7 +88,13 @@ class Bowl
         if (!$this->entityManager instanceof EntityManager) {
             $this->entityManager = EntityManager::create(
                 $this->getConfiguration()->get('database'),
-                Setup::createAnnotationMetadataConfiguration([$this->rootPath . '/src/Classes/Entities/'], true)
+                Setup::createAnnotationMetadataConfiguration(
+                    [
+                        $this->rootPath . '/src/Classes/Entities/', // application
+                        __DIR__ . '/Domain/Entities/', // bowl
+                    ],
+                    true
+                )
             );
         }
         return $this->entityManager;
