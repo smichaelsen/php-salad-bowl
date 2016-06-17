@@ -99,6 +99,28 @@ class AuthenticationService
     }
 
     /**
+     * @param string $username
+     * @param int $id
+     * @return bool
+     */
+    public function forceLogin($username, $id)
+    {
+        $loginService = $this->authenticationFactory->newLoginService($this->authenticationAdapter);
+        $success = $loginService->forceLogin(
+            $this->getAuthenticationSession(),
+            $username,
+            [
+                'id' => $id,
+            ]
+        );
+        if (!$success) {
+            return false;
+        }
+        $this->resumed = true;
+        return true;
+    }
+
+    /**
      *
      */
     public function logout()
