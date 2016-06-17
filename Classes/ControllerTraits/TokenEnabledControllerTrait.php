@@ -29,6 +29,22 @@ trait TokenEnabledControllerTrait
     }
 
     /**
+     * @param $token
+     * @return null|Token
+     */
+    public function getTokenEntity($token)
+    {
+        $queryBuilder = $this->entityManager->getRepository(Token::class)->createQueryBuilder('t');
+        $queryBuilder->select('t')->where(
+            $queryBuilder->expr()->orX(
+                $queryBuilder->expr()->eq('t.token', ':token'),
+                $queryBuilder->expr()->gt('t.expiry', ':expiry')
+            )
+        )->setParameter('token', $token)->setParameter('expiry', new \DateTime());
+        return $queryBuilder->getQuery()->getOneOrNullResult();
+    }
+
+    /**
      * @param Token $token
      */
     protected function invalidateToken(Token $token)
