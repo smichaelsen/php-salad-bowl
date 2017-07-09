@@ -77,6 +77,7 @@ class Bowl
     {
         $this->rootPath = $rootPath;
         $this->serviceContainer = new ServiceContainer($this->getConfiguration());
+        $this->checkBasicAuth();
     }
 
     public function getEntityManager(): EntityManager
@@ -275,6 +276,27 @@ class Bowl
                 $session
             )
         );
+    }
+
+    protected function checkBasicAuth()
+    {
+        $basicAuthConf = $this->getConfiguration()->get('basicAuth');
+        if (!is_array($basicAuthConf)) {
+            return;
+        }
+        $isAuthenticated = false;
+        if (isset($_SERVER['PHP_AUTH_USER']) && $_SERVER['PHP_AUTH_PW']) {
+            foreach ($basicAuthConf['credentials'] as $credential) {
+                if ($credential['user'] === $_SERVER['PHP_AUTH_USER'] && $credential['password'] === $_SERVER['PHP_AUTH_PW']) {
+                    $isAuthenticated = true;
+                }
+            }
+        }
+        if (!$isAuthenticated) {
+            header('WWW-Authenticate: Basic realm="' . $basicAuthConf['title'] . '"');
+            header('HTTP/1.0 401 Unauthorized');
+            exit;
+        }
     }
 
 }
