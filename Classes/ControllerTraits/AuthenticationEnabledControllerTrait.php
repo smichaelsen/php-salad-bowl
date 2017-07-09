@@ -4,6 +4,10 @@ namespace Smichaelsen\SaladBowl\ControllerTraits;
 use Doctrine\ORM\EntityManager;
 use Smichaelsen\SaladBowl\AuthenticationService;
 
+/**
+ * Controllers that use this trait will get a $this->authenticationService injected automatically.
+ * See \Smichaelsen\SaladBowl\AuthenticationService and Aura.Auth for its features.
+ */
 trait AuthenticationEnabledControllerTrait
 {
 
@@ -18,8 +22,6 @@ trait AuthenticationEnabledControllerTrait
     protected $authenticationService;
 
     /**
-     * Will only be called if the controller implements the AuthenticationEnabledControllerInterface
-     *
      * @param AuthenticationService $authenticationService
      * @return void
      */
@@ -28,11 +30,7 @@ trait AuthenticationEnabledControllerTrait
         $this->authenticationService = $authenticationService;
     }
 
-    /**
-     * @param string $entityName
-     * @return object
-     */
-    protected function getLoggedInUser($entityName)
+    protected function getLoggedInUser(string $entityName): object
     {
         $userData = $this->authenticationService->getUserData();
         if ($userData === false) {
