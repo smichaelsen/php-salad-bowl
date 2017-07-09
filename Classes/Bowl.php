@@ -1,8 +1,10 @@
 <?php
+
 namespace Smichaelsen\SaladBowl;
 
 use Aura\Auth\AuthFactory;
 use Aura\Auth\Verifier\PasswordVerifier;
+use Aura\Router\Generator;
 use Aura\Router\Matcher;
 use Aura\Router\RouterContainer;
 use Doctrine\ORM\EntityManager;
@@ -71,19 +73,13 @@ class Bowl
      */
     protected $twigEnvironment;
 
-    /**
-     * @param string $rootPath
-     */
-    public function __construct($rootPath)
+    public function __construct(string $rootPath)
     {
         $this->rootPath = $rootPath;
         $this->serviceContainer = new ServiceContainer($this->getConfiguration());
     }
 
-    /**
-     * @return EntityManager
-     */
-    public function getEntityManager()
+    public function getEntityManager(): EntityManager
     {
         if (!$this->entityManager instanceof EntityManager) {
             $this->entityManager = EntityManager::create(
@@ -100,22 +96,19 @@ class Bowl
         return $this->entityManager;
     }
 
-    /**
-     * @return Server
-     */
-    public function getServer()
+    public function getServer(): Server
     {
         return new Server(
             function (ServerRequestInterface $request, ResponseInterface $response) {
                 $dispatch = function (ServerRequestInterface $request, ResponseInterface $response) {
                     $route = $this->getRouteMatcher()->match($request);
-                    foreach ($route->attributes as $key => $value) {
-                        $request = $request->withAttribute($key, $value);
-                    }
                     if ($route === false) {
                         $forwardException = new ForwardException();
                         $forwardException->setPath('/404');
                         throw $forwardException;
+                    }
+                    foreach ($route->attributes as $key => $value) {
+                        $request = $request->withAttribute($key, $value);
                     }
                     $handlerClassname = $route->handler;
                     if (!is_string($handlerClassname) || !class_exists($handlerClassname)) {
@@ -172,11 +165,7 @@ class Bowl
         );
     }
 
-    /**
-     * @return AuthenticationService
-     * @throws \Exception
-     */
-    protected function getAuthenticationService()
+    protected function getAuthenticationService(): AuthenticationService
     {
         if (!$this->authenticationService instanceof AuthenticationService) {
             $authConfig = $this->getConfiguration()->get('authentication');
@@ -195,10 +184,7 @@ class Bowl
         return $this->authenticationService;
     }
 
-    /**
-     * @return Config
-     */
-    protected function getConfiguration()
+    protected function getConfiguration(): Config
     {
         if (!$this->configuration instanceof Config) {
             $paths = [$this->rootPath . '/config/config.json'];
@@ -210,10 +196,7 @@ class Bowl
         return $this->configuration;
     }
 
-    /**
-     * @return \PDO
-     */
-    protected function getPdo()
+    protected function getPdo(): \PDO
     {
         if (!$this->pdo instanceof \PDO) {
             $dbConfig = $this->getConfiguration()->get('database');
@@ -227,12 +210,7 @@ class Bowl
         return $this->pdo;
     }
 
-    /**
-     * @param string $uriPath
-     * @param string $method
-     * @return ServerRequestInterface
-     */
-    protected function getRequest($uriPath = null, $method = null)
+    protected function getRequest(string $uriPath = null, string $method = null): ServerRequestInterface
     {
         if ($uriPath !== null) {
             $server = $_SERVER;
@@ -248,11 +226,7 @@ class Bowl
         return $this->request;
     }
 
-    /**
-     * @return Matcher
-     * @throws \Exception
-     */
-    protected function getRouteMatcher()
+    protected function getRouteMatcher(): Matcher
     {
         if (!$this->routeMatcher instanceof Matcher) {
             $routesClassName = $this->getConfiguration()->get('routesClass');
@@ -269,22 +243,16 @@ class Bowl
         return $this->routeMatcher;
     }
 
-    /**
-     * @return \Aura\Router\Generator
-     */
-    protected function getUrlGenerator()
+    protected function getUrlGenerator(): Generator
     {
         return $this->serviceContainer->getSingleton(RouterContainer::class)->getGenerator();
     }
 
-    /**
-     * @return \Twig_Environment
-     */
-    protected function getTwigEnvironment()
+    protected function getTwigEnvironment(): \Twig_Environment
     {
         if (!$this->twigEnvironment instanceof \Twig_Environment) {
             $twigConfig = $this->getConfiguration()->get('twig');
-            if (isset($twigConfig['cache']) && $twigConfig['cache'] === '') {
+            if (empty($twigConfig['cache'])) {
                 $twigConfig['cache'] = false;
             }
             $this->twigEnvironment = new \Twig_Environment(
@@ -295,10 +263,7 @@ class Bowl
         return $this->twigEnvironment;
     }
 
-    /**
-     * @return CsrfTokenManager
-     */
-    protected function getCsrfTokenManager()
+    protected function getCsrfTokenManager(): CsrfTokenManager
     {
         $session = $this->serviceContainer->getSingleton(Session::class);
         $session->start();

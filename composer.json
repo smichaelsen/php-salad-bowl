@@ -1,25 +1,26 @@
 {
-  "name": "smichaelsen/salad-bowl",
-  "authors": [
-    {
-      "name": "Sebastian Michaelsen",
-      "email": "sebastian@app-zap.de"
-    }
-  ],
-  "require": {
-    "aura/auth": "2.*",
-    "aura/router": "3.*",
-    "doctrine/orm": "2.5.*",
-    "hassankhan/config": "*",
-    "swiftmailer/swiftmailer": "5.4.*",
-    "symfony/http-foundation": "3.*",
-    "symfony/security-csrf": "3.*",
-    "twig/twig": "*",
-    "zendframework/zend-diactoros": "*"
-  },
-  "autoload": {
-    "psr-4": {
-      "Smichaelsen\\SaladBowl\\": "./Classes/"
-    }
-  }
+	"name": "smichaelsen/salad-bowl",
+	"authors": [
+		{
+			"name": "Sebastian Michaelsen",
+			"email": "sebastian@app-zap.de"
+		}
+	],
+	"require": {
+		"aura/auth": "2.*",
+		"aura/router": "3.*",
+		"doctrine/orm": "2.5.*",
+		"hassankhan/config": "*",
+		"swiftmailer/swiftmailer": "5.4.*",
+		"symfony/http-foundation": "3.*",
+		"symfony/security-csrf": "3.*",
+		"twig/twig": "*",
+		"zendframework/zend-diactoros": "*",
+		"php": "7.*"
+	},
+	"autoload": {
+		"psr-4": {
+			"Smichaelsen\\SaladBowl\\": "./Classes/"
+		}
+	}
 }
