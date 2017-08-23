@@ -280,6 +280,9 @@ class Bowl
 
     protected function checkBasicAuth()
     {
+        if (php_sapi_name() === 'cli') {
+            return;
+        }
         $basicAuthConf = $this->getConfiguration()->get('basicAuth');
         if (!is_array($basicAuthConf)) {
             return;
