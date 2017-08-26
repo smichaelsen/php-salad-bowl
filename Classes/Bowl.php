@@ -104,9 +104,7 @@ class Bowl
                 $dispatch = function (ServerRequestInterface $request, ResponseInterface $response) {
                     $route = $this->getRouteMatcher()->match($request);
                     if ($route === false) {
-                        $forwardException = new ForwardException();
-                        $forwardException->setPath('/404');
-                        throw $forwardException;
+                        return $response->withStatus(404);
                     }
                     foreach ($route->attributes as $key => $value) {
                         $request = $request->withAttribute($key, $value);
@@ -150,16 +148,22 @@ class Bowl
                     } else {
                         $response->getBody()->write($handler->render());
                     }
+                    return $response;
                 };
                 for ($i = 0; $i < 23; $i++) {
                     try {
-                        $dispatch($request, $response);
-                        break;
+                        $response = $dispatch($request, $response);
+                        if ($response->getStatusCode() === 404) {
+                            $request = $this->getRequest('/404', 'get');
+                        } else {
+                            break;
+                        }
                     } catch (ForwardException $e) {
                         $request = $this->getRequest($e->getPath(), 'get');
                     }
                 }
                 $this->getEntityManager()->flush();
+                return $response;
             },
             $this->getRequest(),
             $this->serviceContainer->getSingleton(Response::class)
