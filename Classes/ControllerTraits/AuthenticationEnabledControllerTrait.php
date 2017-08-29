@@ -30,7 +30,7 @@ trait AuthenticationEnabledControllerTrait
         $this->authenticationService = $authenticationService;
     }
 
-    protected function getLoggedInUser(string $entityName): object
+    protected function getLoggedInUser(string $entityName)
     {
         $userData = $this->authenticationService->getUserData();
         if ($userData === false) {
