@@ -260,9 +260,10 @@ class Bowl
             if (empty($twigConfig['cache'])) {
                 $twigConfig['cache'] = false;
             }
+            $templatesFolder = $twigConfig['templatesFolder'] ?? 'templates/';
             $this->twigEnvironment = new \Twig_Environment(
-                new \Twig_Loader_Filesystem($this->rootPath . '/' . $twigConfig['templatesFolder']),
-                ['cache' => isset($twigConfig['cache']) ? $twigConfig['cache'] : sys_get_temp_dir()]
+                new \Twig_Loader_Filesystem($this->rootPath . '/' . $templatesFolder),
+                ['cache' => $twigConfig['cache'] ?? sys_get_temp_dir()]
             );
         }
         return $this->twigEnvironment;
