@@ -88,11 +88,12 @@ class Bowl
     public function getEntityManager(): EntityManager
     {
         if (!$this->entityManager instanceof EntityManager) {
+            $entityManagerConfiguration = $this->getConfiguration()['entity'];
             $this->entityManager = EntityManager::create(
                 $this->getConfiguration()->get('database'),
                 Setup::createAnnotationMetadataConfiguration(
                     [
-                        $this->rootPath . '/src/Classes/Entities/', // application
+                        $this->rootPath . '/' . ($entityManagerConfiguration['entityDirectory'] ?? 'src/Classes/Entities/'), // application
                         __DIR__ . '/Domain/Entities/', // bowl
                     ],
                     true
@@ -290,7 +291,7 @@ class Bowl
 
     protected function checkBasicAuth()
     {
-        if (php_sapi_name() === 'cli') {
+        if (PHP_SAPI === 'cli') {
             return;
         }
         $basicAuthConf = $this->getConfiguration()->get('basicAuth');
