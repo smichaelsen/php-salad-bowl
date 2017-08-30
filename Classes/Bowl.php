@@ -75,6 +75,11 @@ class Bowl
 
     public function __construct(string $rootPath)
     {
+        set_exception_handler(function(\Throwable $exception){
+            echo 'Oh no. What a mess! An error occured. <pre>';
+            var_dump($exception);
+            die();
+        });
         $this->rootPath = $rootPath;
         $this->serviceContainer = new ServiceContainer($this->getConfiguration());
         $this->checkBasicAuth();
