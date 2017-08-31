@@ -29,3 +29,5 @@ in a usable way and set some good defaults.
 * `entity`: Can contain the following keys:
   * `entityDirectory`
 * `routesClass`: Name of the class that registers your application's routes
+* `twig`: Can contain the following keys:
+  * `debug`

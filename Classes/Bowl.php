@@ -267,10 +267,17 @@ class Bowl
                 $twigConfig['cache'] = false;
             }
             $templatesFolder = $twigConfig['templatesFolder'] ?? 'templates/';
+            $enableDebugMode = $twigConfig['debug'] ?? false;
             $this->twigEnvironment = new \Twig_Environment(
                 new \Twig_Loader_Filesystem($this->rootPath . '/' . $templatesFolder),
-                ['cache' => $twigConfig['cache'] ?? sys_get_temp_dir()]
+                [
+                    'cache' => $twigConfig['cache'] ?? sys_get_temp_dir(),
+                    'debug' => $enableDebugMode,
+                ]
             );
+            if ($enableDebugMode) {
+                $this->twigEnvironment->addExtension(new \Twig_Extension_Debug());
+            }
         }
         return $this->twigEnvironment;
     }
