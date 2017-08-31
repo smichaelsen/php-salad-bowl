@@ -123,12 +123,14 @@ class Bowl
                     if (!$handler instanceof ControllerInterface) {
                         throw new \Exception('Handler has to implement the ControllerInterface ', 1454175394);
                     }
-                    $handler->setConfiguration(isset($this->getConfiguration()['app']) ? $this->getConfiguration()['app'] : []);
+                    $appConfiguration = isset($this->getConfiguration()['app']) ? $this->getConfiguration()['app'] : [];
+                    $handler->setConfiguration($appConfiguration);
                     $handler->setEntityManager($this->getEntityManager());
                     $view = new View(
                         explode('.', $route->name, 2)[0],
                         $this->getTwigEnvironment()
                     );
+                    $view->assign('appConfig', $appConfiguration);
                     $handler->setView($view);
                     if (!method_exists($handler, $request->getMethod())) {
                         throw new \Exception('Method ' . $request->getMethod() . ' not supported by handler ' . $handlerClassname, 1454170178);
