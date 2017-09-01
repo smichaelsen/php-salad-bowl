@@ -12,6 +12,7 @@ use Doctrine\ORM\Tools\Setup;
 use Noodlehaus\Config;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Smichaelsen\SaladBowl\Service\MessageService;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\Security\Csrf\CsrfTokenManager;
 use Symfony\Component\Security\Csrf\TokenGenerator\UriSafeTokenGenerator;
@@ -143,6 +144,9 @@ class Bowl
                     }
                     if (method_exists($handler, 'setMailService')) {
                         $handler->setMailService($this->serviceContainer->getSingleton(MailService::class, $this->getConfiguration()->get('swiftmailer')));
+                    }
+                    if (method_exists($handler, 'setMessageService')) {
+                        $handler->setMessageService($this->serviceContainer->getSingleton(MessageService::class));
                     }
                     if (method_exists($handler, 'setUrlGenerator')) {
                         $handler->setUrlGenerator($this->getUrlGenerator());
