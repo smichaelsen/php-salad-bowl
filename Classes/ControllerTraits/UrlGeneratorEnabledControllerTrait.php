@@ -1,4 +1,5 @@
 <?php
+
 namespace Smichaelsen\SaladBowl\ControllerTraits;
 
 use Aura\Router\Generator;
@@ -30,7 +31,13 @@ trait UrlGeneratorEnabledControllerTrait
     /**
      * @param View $view
      */
-    protected function registerTwigFunctions_urlGenerator(View $view) {
+    protected function registerTwigFunctions_urlGenerator(View $view)
+    {
+        static $added = false;
+        if ($added) {
+            return;
+        }
+        $added = true;
         $urlGenerator = $this->urlGenerator;
         $view->addFunction('path', function ($routeName, $arguments = []) use ($urlGenerator) {
             return $urlGenerator->generate($routeName, $arguments);
