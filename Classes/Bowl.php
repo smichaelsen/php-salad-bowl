@@ -14,6 +14,7 @@ use Doctrine\ORM\Tools\Setup;
 use Noodlehaus\Config;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Smichaelsen\SaladBowl\Plugin\PluginLoader;
 use Smichaelsen\SaladBowl\Service\MessageService;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\Security\Csrf\CsrfTokenManager;
@@ -84,7 +85,7 @@ class Bowl
             die();
         });
         $this->rootPath = $rootPath;
-        $this->serviceContainer = new ServiceContainer($this->getConfiguration());
+        $this->serviceContainer = new ServiceContainer();
         $this->initializePlugins();
     }
 
@@ -204,7 +205,7 @@ class Bowl
         return $this->authenticationService;
     }
 
-    protected function getConfiguration(): Config
+    public function getConfiguration(): Config
     {
         if (!$this->configuration instanceof Config) {
             $paths = [$this->rootPath . '/config/config.json'];
@@ -257,7 +258,8 @@ class Bowl
             if (!$routesClass instanceof RoutesClassInterface) {
                 throw new \Exception('Routes class must implement RoutesClassInterface', 1454173584);
             }
-            $routesClass->configure($this->serviceContainer->getSingleton(RouterContainer::class)->getMap());
+            $map = $this->serviceContainer->getSingleton(RouterContainer::class)->getMap();
+            $routesClass->configure($map);
             $this->routeMatcher = $this->serviceContainer->getSingleton(RouterContainer::class)->getMatcher();
         }
         return $this->routeMatcher;
@@ -331,13 +333,17 @@ class Bowl
 
     protected function initializePlugins()
     {
-        $installedPackages = json_decode(file_get_contents($this->rootPath . 'vendor/composer/installed.json'), true);
-        foreach ($installedPackages as $installedPackage) {
-            if ($installedPackage['type'] === 'salad-bowl-plugin') {
-                time();
-            }
-        }
-        return true;
+        $this->serviceContainer->getSingleton(PluginLoader::class)($this);
+    }
+
+    public function getRootPath(): string
+    {
+        return $this->rootPath;
+    }
+
+    public function getServiceContainer(): ServiceContainer
+    {
+        return $this->serviceContainer;
     }
 
 }

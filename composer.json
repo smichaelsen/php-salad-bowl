@@ -9,6 +9,7 @@
 	"require": {
 		"aura/auth": "2.*",
 		"aura/router": "3.*",
+		"container-interop/container-interop": "^1.2.0",
 		"doctrine/orm": "2.5.*",
 		"hassankhan/config": "*",
 		"swiftmailer/swiftmailer": "5.4.*",

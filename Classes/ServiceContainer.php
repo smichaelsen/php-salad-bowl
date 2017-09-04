@@ -1,22 +1,17 @@
 <?php
 namespace Smichaelsen\SaladBowl;
 
-use Noodlehaus\Config;
-
 class ServiceContainer
 {
 
     /**
-     * @var Config
+     * @var Bowl
      */
-    protected $configuration;
+    protected $bowl;
 
-    /**
-     * @param Config $configuration
-     */
-    public function __construct(Config $configuration)
+    public function __construct(Bowl $bowl)
     {
-        $this->configuration = $configuration;
+        $this->bowl = $bowl;
     }
 
     /**
@@ -39,7 +34,7 @@ class ServiceContainer
      */
     protected function instantiate($className, array $constructorArguments)
     {
-        return new $className(...$constructorArguments);
+        return new $className($this->bowl, ...$constructorArguments);
     }
 
 }
