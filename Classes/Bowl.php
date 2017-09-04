@@ -7,6 +7,8 @@ use Aura\Auth\Verifier\PasswordVerifier;
 use Aura\Router\Generator;
 use Aura\Router\Matcher;
 use Aura\Router\RouterContainer;
+use Composer\Factory;
+use Composer\IO\NullIO;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Tools\Setup;
 use Noodlehaus\Config;
@@ -83,7 +85,7 @@ class Bowl
         });
         $this->rootPath = $rootPath;
         $this->serviceContainer = new ServiceContainer($this->getConfiguration());
-        $this->checkBasicAuth();
+        $this->initializePlugins();
     }
 
     public function getEntityManager(): EntityManager
@@ -108,6 +110,7 @@ class Bowl
     {
         return new Server(
             function (ServerRequestInterface $request, ResponseInterface $response) {
+                $this->checkBasicAuth();
                 $dispatch = function (ServerRequestInterface $request, ResponseInterface $response) {
                     $route = $this->getRouteMatcher()->match($request);
                     if ($route === false) {
@@ -324,6 +327,17 @@ class Bowl
             header('HTTP/1.0 401 Unauthorized');
             exit;
         }
+    }
+
+    protected function initializePlugins()
+    {
+        $installedPackages = json_decode(file_get_contents($this->rootPath . 'vendor/composer/installed.json'), true);
+        foreach ($installedPackages as $installedPackage) {
+            if ($installedPackage['type'] === 'salad-bowl-plugin') {
+                time();
+            }
+        }
+        return true;
     }
 
 }
