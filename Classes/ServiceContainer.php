@@ -5,16 +5,6 @@ class ServiceContainer
 {
 
     /**
-     * @var Bowl
-     */
-    protected $bowl;
-
-    public function __construct(Bowl $bowl)
-    {
-        $this->bowl = $bowl;
-    }
-
-    /**
      * @param string $className
      * @return object
      */
@@ -34,7 +24,7 @@ class ServiceContainer
      */
     protected function instantiate($className, array $constructorArguments)
     {
-        return new $className($this->bowl, ...$constructorArguments);
+        return new $className(...$constructorArguments);
     }
 
 }

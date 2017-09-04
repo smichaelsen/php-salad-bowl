@@ -7,8 +7,6 @@ use Aura\Auth\Verifier\PasswordVerifier;
 use Aura\Router\Generator;
 use Aura\Router\Matcher;
 use Aura\Router\RouterContainer;
-use Composer\Factory;
-use Composer\IO\NullIO;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Tools\Setup;
 use Noodlehaus\Config;
