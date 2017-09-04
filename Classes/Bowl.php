@@ -7,8 +7,6 @@ use Aura\Auth\Verifier\PasswordVerifier;
 use Aura\Router\Generator;
 use Aura\Router\Matcher;
 use Aura\Router\RouterContainer;
-use Composer\Factory;
-use Composer\IO\NullIO;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Tools\Setup;
 use Noodlehaus\Config;
@@ -16,6 +14,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Smichaelsen\SaladBowl\Plugin\PluginLoader;
 use Smichaelsen\SaladBowl\Service\MessageService;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\Security\Csrf\CsrfTokenManager;
 use Symfony\Component\Security\Csrf\TokenGenerator\UriSafeTokenGenerator;
@@ -85,6 +84,7 @@ class Bowl
             die();
         });
         $this->rootPath = $rootPath;
+        $container = new ContainerBuilder();
         $this->serviceContainer = new ServiceContainer();
         $this->initializePlugins();
     }

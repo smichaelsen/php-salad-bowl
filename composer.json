@@ -12,9 +12,11 @@
 		"doctrine/orm": "2.5.*",
 		"hassankhan/config": "*",
 		"swiftmailer/swiftmailer": "5.4.*",
+		"symfony/config": "^3.3.8",
 		"symfony/dependency-injection": "^3.3.8",
-		"symfony/http-foundation": "3.*",
-		"symfony/security-csrf": "3.*",
+		"symfony/http-foundation": "^3.3.8",
+		"symfony/security-csrf": "^3.3.8",
+		"symfony/yaml": "^3.3.8",
 		"twig/twig": "*",
 		"zendframework/zend-diactoros": "*",
 		"php": "7.*"
