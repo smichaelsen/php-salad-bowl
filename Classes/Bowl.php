@@ -12,6 +12,7 @@ use Doctrine\ORM\Tools\Setup;
 use Noodlehaus\Config;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Smichaelsen\SaladBowl\Factory\RouteMatcherFactory;
 use Smichaelsen\SaladBowl\Plugin\PluginLoader;
 use Smichaelsen\SaladBowl\Service\MessageService;
 use Symfony\Component\HttpFoundation\Session\Session;
@@ -248,17 +249,10 @@ class Bowl
     protected function getRouteMatcher(): Matcher
     {
         if (!$this->routeMatcher instanceof Matcher) {
-            $routesClassName = $this->getConfiguration()->get('routesClass');
-            if (!class_exists($routesClassName)) {
-                throw new \Exception('Routes class could not be loaded', 1454173497);
-            }
-            $routesClass = new $routesClassName;
-            if (!$routesClass instanceof RoutesClassInterface) {
-                throw new \Exception('Routes class must implement RoutesClassInterface', 1454173584);
-            }
-            $map = $this->serviceContainer->getSingleton(RouterContainer::class)->getMap();
-            $routesClass->configure($map);
-            $this->routeMatcher = $this->serviceContainer->getSingleton(RouterContainer::class)->getMatcher();
+            $this->routeMatcher = $this->serviceContainer->getSingleton(
+                RouteMatcherFactory::class,
+                $this
+            )->createMatcher();
         }
         return $this->routeMatcher;
     }
