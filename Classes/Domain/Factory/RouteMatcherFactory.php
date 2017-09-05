@@ -1,5 +1,5 @@
 <?php
-namespace Smichaelsen\SaladBowl\Factory;
+namespace Smichaelsen\SaladBowl\Domain\Factory;
 
 use Aura\Router\Matcher;
 use Aura\Router\RouterContainer;
@@ -22,7 +22,7 @@ class RouteMatcherFactory
         $this->bowl = $bowl;
     }
 
-    public function createMatcher(): Matcher
+    public function create(): Matcher
     {
         $routerContainer = $this->bowl->getServiceContainer()->getSingleton(RouterContainer::class);
         $map = $routerContainer->getMap();

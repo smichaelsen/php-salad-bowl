@@ -12,7 +12,7 @@ use Doctrine\ORM\Tools\Setup;
 use Noodlehaus\Config;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Smichaelsen\SaladBowl\Factory\RouteMatcherFactory;
+use Smichaelsen\SaladBowl\Domain\Factory\RouteMatcherFactory;
 use Smichaelsen\SaladBowl\Plugin\PluginLoader;
 use Smichaelsen\SaladBowl\Service\MessageService;
 use Symfony\Component\HttpFoundation\Session\Session;
@@ -91,17 +91,7 @@ class Bowl
     public function getEntityManager(): EntityManager
     {
         if (!$this->entityManager instanceof EntityManager) {
-            $entityManagerConfiguration = $this->getConfiguration()['entity'];
-            $this->entityManager = EntityManager::create(
-                $this->getConfiguration()->get('database'),
-                Setup::createAnnotationMetadataConfiguration(
-                    [
-                        $this->rootPath . '/' . ($entityManagerConfiguration['entityDirectory'] ?? 'src/Classes/Entities/'), // application
-                        __DIR__ . '/Domain/Entities/', // bowl
-                    ],
-                    true
-                )
-            );
+
         }
         return $this->entityManager;
     }
@@ -252,7 +242,7 @@ class Bowl
             $this->routeMatcher = $this->serviceContainer->getSingleton(
                 RouteMatcherFactory::class,
                 $this
-            )->createMatcher();
+            )->create();
         }
         return $this->routeMatcher;
     }
