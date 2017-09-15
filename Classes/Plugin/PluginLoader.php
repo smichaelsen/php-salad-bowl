@@ -2,12 +2,10 @@
 
 namespace Smichaelsen\SaladBowl\Plugin;
 
-use Smichaelsen\SaladBowl\Bowl;
-
 class PluginLoader
 {
 
-    public function __invoke(Bowl $bowl)
+    public function __invoke()
     {
         $composerJsonPath = BOWL_ROOT_PATH . '/vendor/composer/installed.json';
         $installedPackages = json_decode(file_get_contents($composerJsonPath), true);
@@ -27,7 +25,7 @@ class PluginLoader
                                 1504555641
                             );
                         }
-                        $plugin->register($bowl);
+                        $plugin->register();
                     }
                 }
             }

@@ -32,13 +32,13 @@ class Bowl
 
     public function __construct(string $rootPath)
     {
-        set_exception_handler(function(\Throwable $exception){
+        set_exception_handler(function (\Throwable $exception) {
             echo 'Oh no. What a mess! An error occured. <pre>';
             var_dump($exception);
             die();
         });
         define('BOWL_ROOT_PATH', $rootPath);
-        $this->initializePlugins();
+        ServiceContainer::getSingleton(PluginLoader::class)();
     }
 
     public static function getConfiguration($key, $default = null)
@@ -77,10 +77,5 @@ class Bowl
             RequestFactory::create(),
             ServiceContainer::getSingleton(Response::class)
         );
-    }
-
-    protected function initializePlugins()
-    {
-        ServiceContainer::getSingleton(PluginLoader::class)($this);
     }
 }
