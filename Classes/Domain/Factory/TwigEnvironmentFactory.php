@@ -6,26 +6,16 @@ use Smichaelsen\SaladBowl\Bowl;
 class TwigEnvironmentFactory
 {
 
-    /**
-     * @var Bowl
-     */
-    protected $bowl;
-
-    public function __construct(Bowl $bowl)
-    {
-        $this->bowl = $bowl;
-    }
-
     public function create(): \Twig_Environment
     {
-        $twigConfig = $this->bowl->getConfiguration()->get('twig');
+        $twigConfig = Bowl::getConfiguration('twig');
         if (empty($twigConfig['cache'])) {
             $twigConfig['cache'] = false;
         }
         $templatesFolder = $twigConfig['templatesFolder'] ?? 'templates/';
         $enableDebugMode = $twigConfig['debug'] ?? false;
         $twigEnvironment = new \Twig_Environment(
-            new \Twig_Loader_Filesystem($this->bowl->getRootPath() . '/' . $templatesFolder),
+            new \Twig_Loader_Filesystem(BOWL_ROOT_PATH . '/' . $templatesFolder),
             [
                 'cache' => $twigConfig['cache'] ?? sys_get_temp_dir(),
                 'debug' => $enableDebugMode,
@@ -36,5 +26,4 @@ class TwigEnvironmentFactory
         }
         return $twigEnvironment;
     }
-
 }

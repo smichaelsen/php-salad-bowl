@@ -9,7 +9,7 @@ class PluginLoader
 
     public function __invoke(Bowl $bowl)
     {
-        $composerJsonPath = $bowl->getRootPath() . '/vendor/composer/installed.json';
+        $composerJsonPath = BOWL_ROOT_PATH . '/vendor/composer/installed.json';
         $installedPackages = json_decode(file_get_contents($composerJsonPath), true);
         foreach ($installedPackages as $package) {
             if ($package['type'] === 'salad-bowl-plugin') {

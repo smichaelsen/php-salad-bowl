@@ -8,11 +8,11 @@ class ServiceContainer
      * @param string $className
      * @return object
      */
-    public function getSingleton($className)
+    public static function getSingleton($className)
     {
         static $instances = [];
         if (!isset($instances[$className])) {
-            $instances[$className] = $this->instantiate($className, array_slice(func_get_args(), 1));
+            $instances[$className] = self::instantiate($className, array_slice(func_get_args(), 1));
         }
         return $instances[$className];
     }
@@ -22,9 +22,8 @@ class ServiceContainer
      * @param array $constructorArguments
      * @return object
      */
-    protected function instantiate($className, array $constructorArguments)
+    protected static function instantiate($className, array $constructorArguments)
     {
         return new $className(...$constructorArguments);
     }
-
 }

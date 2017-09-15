@@ -7,6 +7,6 @@ use Smichaelsen\SaladBowl\Bowl;
 interface PluginInterface
 {
 
-    public function register(Bowl $bowl);
+    public function register();
 
 }

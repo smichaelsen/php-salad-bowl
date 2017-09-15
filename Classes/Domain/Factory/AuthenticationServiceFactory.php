@@ -9,19 +9,9 @@ use Smichaelsen\SaladBowl\Bowl;
 class AuthenticationServiceFactory
 {
 
-    /**
-     * @var Bowl
-     */
-    protected $bowl;
-
-    public function __construct(Bowl $bowl)
-    {
-        $this->bowl = $bowl;
-    }
-
     public function create(): AuthenticationService
     {
-        $authConfig = $this->bowl->getConfiguration()->get('authentication');
+        $authConfig = Bowl::getConfiguration('authentication');
         if (!is_array($authConfig)) {
             throw new \Exception('Authentication configuration missing', 1465583676);
         }
@@ -37,7 +27,7 @@ class AuthenticationServiceFactory
 
     protected function getPdo(): \PDO
     {
-        $dbConfig = $this->bowl->getConfiguration()->get('database');
+        $dbConfig = Bowl::getConfiguration('database');
         $dsn = sprintf(
             'mysql:host=%s;dbname=%s',
             $dbConfig['host'],
