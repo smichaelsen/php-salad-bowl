@@ -3,7 +3,6 @@
 namespace Smichaelsen\SaladBowl;
 
 use Aura\Router\Generator;
-use Aura\Router\Matcher;
 use Aura\Router\RouterContainer;
 use Doctrine\ORM\EntityManager;
 use Noodlehaus\Config;
@@ -14,6 +13,7 @@ use Smichaelsen\SaladBowl\Domain\Factory\EntityManagerFactory;
 use Smichaelsen\SaladBowl\Domain\Factory\RouteMatcherFactory;
 use Smichaelsen\SaladBowl\Domain\Factory\TwigEnvironmentFactory;
 use Smichaelsen\SaladBowl\Plugin\PluginLoader;
+use Smichaelsen\SaladBowl\Service\MailService;
 use Smichaelsen\SaladBowl\Service\MessageService;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\Security\Csrf\CsrfTokenManager;

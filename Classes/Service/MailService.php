@@ -1,5 +1,5 @@
 <?php
-namespace Smichaelsen\SaladBowl;
+namespace Smichaelsen\SaladBowl\Service;
 
 class MailService
 {

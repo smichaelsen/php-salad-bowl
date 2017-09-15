@@ -1,7 +1,7 @@
 <?php
 namespace Smichaelsen\SaladBowl\ControllerTraits;
 
-use Smichaelsen\SaladBowl\MailService;
+use Smichaelsen\SaladBowl\Service\MailService;
 
 trait MailEnabledControllerTrait
 {
