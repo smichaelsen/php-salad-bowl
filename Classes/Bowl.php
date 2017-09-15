@@ -2,18 +2,17 @@
 
 namespace Smichaelsen\SaladBowl;
 
-use Aura\Auth\AuthFactory;
-use Aura\Auth\Verifier\PasswordVerifier;
 use Aura\Router\Generator;
 use Aura\Router\Matcher;
 use Aura\Router\RouterContainer;
 use Doctrine\ORM\EntityManager;
-use Doctrine\ORM\Tools\Setup;
 use Noodlehaus\Config;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Smichaelsen\SaladBowl\Domain\Factory\AuthenticationServiceFactory;
 use Smichaelsen\SaladBowl\Domain\Factory\EntityManagerFactory;
 use Smichaelsen\SaladBowl\Domain\Factory\RouteMatcherFactory;
+use Smichaelsen\SaladBowl\Domain\Factory\TwigEnvironmentFactory;
 use Smichaelsen\SaladBowl\Plugin\PluginLoader;
 use Smichaelsen\SaladBowl\Service\MessageService;
 use Symfony\Component\HttpFoundation\Session\Session;
@@ -28,11 +27,6 @@ class Bowl
 {
 
     /**
-     * @var AuthenticationService
-     */
-    protected $authenticationService;
-
-    /**
      * @var Config
      */
     protected $configuration;
@@ -43,24 +37,9 @@ class Bowl
     protected $entityManager;
 
     /**
-     * @var MailService
-     */
-    protected $mailService;
-
-    /**
-     * @var \PDO
-     */
-    protected $pdo;
-
-    /**
      * @var ServerRequestInterface
      */
     protected $request;
-
-    /**
-     * @var Matcher
-     */
-    protected $routeMatcher;
 
     /**
      * @var string
@@ -89,6 +68,18 @@ class Bowl
         $this->initializePlugins();
     }
 
+    public function getConfiguration(): Config
+    {
+        if (!$this->configuration instanceof Config) {
+            $paths = [$this->rootPath . '/config/config.json'];
+            if (is_readable($this->rootPath . '/config/config.local.json')) {
+                $paths[] = $this->rootPath . '/config/config.local.json';
+            }
+            $this->configuration = Config::load($paths);
+        }
+        return $this->configuration;
+    }
+
     public function getEntityManager(): EntityManager
     {
         if (!$this->entityManager instanceof EntityManager) {
@@ -106,7 +97,11 @@ class Bowl
             function (ServerRequestInterface $request, ResponseInterface $response) {
                 $this->checkBasicAuth();
                 $dispatch = function (ServerRequestInterface $request, ResponseInterface $response) {
-                    $route = $this->getRouteMatcher()->match($request);
+                    $routeMatcher = $this->serviceContainer->getSingleton(
+                        RouteMatcherFactory::class,
+                        $this
+                    )->create();
+                    $route = $routeMatcher->match($request);
                     if ($route === false) {
                         return $response->withStatus(404);
                     }
@@ -124,17 +119,22 @@ class Bowl
                     $appConfiguration = isset($this->getConfiguration()['app']) ? $this->getConfiguration()['app'] : [];
                     $handler->setConfiguration($appConfiguration);
                     $handler->setEntityManager($this->getEntityManager());
-                    $view = new View(
-                        explode('.', $route->name, 2)[0],
-                        $this->getTwigEnvironment()
-                    );
+                    $twigEnvironment = $this->getServiceContainer()->getSingleton(
+                        TwigEnvironmentFactory::class,
+                        $this
+                    )->create();
+                    $view = new View(explode('.', $route->name, 2)[0], $twigEnvironment);
                     $view->assign('appConfig', $appConfiguration);
                     $handler->setView($view);
                     if (!method_exists($handler, $request->getMethod())) {
                         throw new \Exception('Method ' . $request->getMethod() . ' not supported by handler ' . $handlerClassname, 1454170178);
                     }
                     if (method_exists($handler, 'setAuthenticationService')) {
-                        $handler->setAuthenticationService($this->getAuthenticationService());
+                        $authenticationService = $this->serviceContainer->getSingleton(
+                            AuthenticationServiceFactory::class,
+                            $this
+                        )->create();
+                        $handler->setAuthenticationService($authenticationService);
                     }
                     if (method_exists($handler, 'setCsrfTokenManager')) {
                         $handler->setCsrfTokenManager($this->getCsrfTokenManager());
@@ -179,51 +179,6 @@ class Bowl
         );
     }
 
-    protected function getAuthenticationService(): AuthenticationService
-    {
-        if (!$this->authenticationService instanceof AuthenticationService) {
-            $authConfig = $this->getConfiguration()->get('authentication');
-            if (!is_array($authConfig)) {
-                throw new \Exception('Authentication configuration missing', 1465583676);
-            }
-            $authFactory = new AuthFactory($_COOKIE);
-            $authAdapter = $authFactory->newPdoAdapter(
-                $this->getPdo(),
-                new PasswordVerifier(AuthenticationService::PASSWORD_HASHING_ALGO),
-                $authConfig['columns'],
-                $authConfig['table']
-            );
-            $this->authenticationService = new AuthenticationService($authFactory, $authAdapter);
-        }
-        return $this->authenticationService;
-    }
-
-    public function getConfiguration(): Config
-    {
-        if (!$this->configuration instanceof Config) {
-            $paths = [$this->rootPath . '/config/config.json'];
-            if (is_readable($this->rootPath . '/config/config.local.json')) {
-                $paths[] = $this->rootPath . '/config/config.local.json';
-            }
-            $this->configuration = Config::load($paths);
-        }
-        return $this->configuration;
-    }
-
-    protected function getPdo(): \PDO
-    {
-        if (!$this->pdo instanceof \PDO) {
-            $dbConfig = $this->getConfiguration()->get('database');
-            $dsn = sprintf(
-                'mysql:host=%s;dbname=%s',
-                $dbConfig['host'],
-                $dbConfig['dbname']
-            );
-            $this->pdo = new \PDO($dsn, $dbConfig['user'], $dbConfig['password']);
-        }
-        return $this->pdo;
-    }
-
     protected function getRequest(string $uriPath = null, string $method = null): ServerRequestInterface
     {
         if ($uriPath !== null) {
@@ -240,43 +195,9 @@ class Bowl
         return $this->request;
     }
 
-    protected function getRouteMatcher(): Matcher
-    {
-        if (!$this->routeMatcher instanceof Matcher) {
-            $this->routeMatcher = $this->serviceContainer->getSingleton(
-                RouteMatcherFactory::class,
-                $this
-            )->create();
-        }
-        return $this->routeMatcher;
-    }
-
     protected function getUrlGenerator(): Generator
     {
         return $this->serviceContainer->getSingleton(RouterContainer::class)->getGenerator();
-    }
-
-    protected function getTwigEnvironment(): \Twig_Environment
-    {
-        if (!$this->twigEnvironment instanceof \Twig_Environment) {
-            $twigConfig = $this->getConfiguration()->get('twig');
-            if (empty($twigConfig['cache'])) {
-                $twigConfig['cache'] = false;
-            }
-            $templatesFolder = $twigConfig['templatesFolder'] ?? 'templates/';
-            $enableDebugMode = $twigConfig['debug'] ?? false;
-            $this->twigEnvironment = new \Twig_Environment(
-                new \Twig_Loader_Filesystem($this->rootPath . '/' . $templatesFolder),
-                [
-                    'cache' => $twigConfig['cache'] ?? sys_get_temp_dir(),
-                    'debug' => $enableDebugMode,
-                ]
-            );
-            if ($enableDebugMode) {
-                $this->twigEnvironment->addExtension(new \Twig_Extension_Debug());
-            }
-        }
-        return $this->twigEnvironment;
     }
 
     protected function getCsrfTokenManager(): CsrfTokenManager
@@ -331,5 +252,4 @@ class Bowl
     {
         return $this->serviceContainer;
     }
-
 }
