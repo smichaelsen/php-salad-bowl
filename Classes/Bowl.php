@@ -16,19 +16,9 @@ class Bowl
 {
 
     /**
-     * @var Config
-     */
-    protected $configuration;
-
-    /**
      * @var EntityManager
      */
     protected $entityManager;
-
-    /**
-     * @var \Twig_Environment
-     */
-    protected $twigEnvironment;
 
     public function __construct(string $rootPath)
     {
