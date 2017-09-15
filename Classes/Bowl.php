@@ -12,6 +12,7 @@ use Doctrine\ORM\Tools\Setup;
 use Noodlehaus\Config;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Smichaelsen\SaladBowl\Domain\Factory\EntityManagerFactory;
 use Smichaelsen\SaladBowl\Domain\Factory\RouteMatcherFactory;
 use Smichaelsen\SaladBowl\Plugin\PluginLoader;
 use Smichaelsen\SaladBowl\Service\MessageService;
@@ -91,7 +92,10 @@ class Bowl
     public function getEntityManager(): EntityManager
     {
         if (!$this->entityManager instanceof EntityManager) {
-
+            $this->entityManager = $this->serviceContainer->getSingleton(
+                EntityManagerFactory::class,
+                $this
+            )->create();
         }
         return $this->entityManager;
     }
