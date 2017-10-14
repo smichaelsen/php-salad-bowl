@@ -3,9 +3,9 @@
 namespace Smichaelsen\SaladBowl;
 
 use Doctrine\ORM\EntityManager;
-use Noodlehaus\Config;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Smichaelsen\SaladBowl\Domain\Factory\ConfigurationFactory;
 use Smichaelsen\SaladBowl\Domain\Factory\EntityManagerFactory;
 use Smichaelsen\SaladBowl\Domain\Factory\RequestFactory;
 use Smichaelsen\SaladBowl\Plugin\PluginLoader;
@@ -34,17 +34,13 @@ class Bowl
     public static function getConfiguration($key, $default = null)
     {
         static $configuration;
-        if (!$configuration instanceof Config) {
-            $paths = [BOWL_ROOT_PATH . '/config/config.json'];
-            if (is_readable(BOWL_ROOT_PATH . '/config/config.local.json')) {
-                $paths[] = BOWL_ROOT_PATH . '/config/config.local.json';
-            }
-            $configuration = Config::load($paths);
+        if (!$configuration) {
+            $configuration = ServiceContainer::getSingleton(ConfigurationFactory::class)->create();
         }
-        if (!$configuration->has($key)) {
+        if (!isset($configuration[$key])) {
             return $default;
         }
-        return $configuration->get($key);
+        return $configuration[$key];
     }
 
     public function getEntityManager(): EntityManager
