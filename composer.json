@@ -16,6 +16,7 @@
 		"swiftmailer/swiftmailer": "5.4.*",
 		"symfony/http-foundation": "3.*",
 		"symfony/security-csrf": "3.*",
+		"symfony/translation": "3.*",
 		"twig/twig": "*",
 		"zendframework/zend-diactoros": "*",
 		"php": "7.*"
